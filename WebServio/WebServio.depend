@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1489870792 source:/home/attacker/Desktop/WebServio/WebServio/main.c
+	<stdio.h>
+	<stdlib.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netdb.h>
+
