@@ -13,12 +13,48 @@
 #define PORT "3002"
 #define BACKLOG 20
 
+#include "Parser.h"
+#include "minunit.h"
 
-char buffer[100000];
+
+#include "Tests/RequestLineTests.h"
+
+
+ int run_all_tests() {
+    printf("======= RUNNING REQUEST LINE PARSER TESTS ======\n");
+     char *result = run_all_request_line_parser_tests();
+     if (result != 0) {
+         printf("%s\n", result);
+     }
+     else {
+         printf("ALL TESTS PASSED\n");
+     }
+     printf("Tests run: %d\n\n", tests_run);
+
+    getchar();
+     return result != 0;
+ }
+
+
+
+char buffer[10000];
 
 
 int main()
 {
+    run_all_tests();
+
+/*
+    char a[] = "    GET /wersodijfoisdjf HTTP/1.1\r\n";
+    RequestLine requestLine;
+    parseRequestLine(a, &requestLine);
+
+    char* b = strtok(a, " ");
+
+    while (b != NULL) {
+        printf("The value of b is: %s\n", b);
+        b = strtok(NULL, " ");
+    }
 
 
     struct addrinfo hints;
@@ -86,9 +122,31 @@ int main()
         close(acceptedFileDescriptor);
     }
     else {
-        printf("Received data: \n%s", buffer);
+
+
+
+    //char* delimitedStr = strtok(buffer, "\r\n");
+
+
+    for (int i = 0 ; i < strlen(buffer); i++) {
+        printf("The characters is: %d\n", buffer[i]);
+        int requestLineEndPos = parseRequestLine(buffer); //requestLineEndPos would be on the last character in the request line, aka, the LF
+
     }
 
 
+   // while (delimitedStr != NULL) {
+      //  printf("The value of delimitedStr is: %s\n", delimitedStr);
+      // delimitedStr = strtok(NULL, "\r\n");
+//    }
+
+        printf("Received data: \n%s", buffer);
+    }
+
+    getchar();
     return 0;
+
+    */
+
 }
+

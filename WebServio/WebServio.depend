@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1490825382 source:/home/attacker/Desktop/WebServio/WebServio/main.c
+1491032776 source:/home/attacker/Desktop/WebServio/WebServio/main.c
 	<stdio.h>
 	<stdlib.h>
 	<errno.h>
@@ -8,4 +8,25 @@
 	<sys/socket.h>
 	<netdb.h>
 	<pthread.h>
+	"Parser.h"
+	"minunit.h"
+	"Tests/RequestLineTests.h"
+
+1491021205 /home/attacker/Desktop/WebServio/WebServio/Parser.h
+	<stdbool.h>
+
+1491022566 source:/home/attacker/Desktop/WebServio/WebServio/Parser.c
+	"Parser.h"
+
+1491032303 /home/attacker/Desktop/WebServio/WebServio/minunit.h
+
+1491032377 /home/attacker/Desktop/WebServio/WebServio/Tests/RequestLineTests.h
+
+1491032610 source:/home/attacker/Desktop/WebServio/WebServio/Tests/RequestLineTests.c
+	<stdio.h>
+	"minunit.h"
+	"../Parser.h"
+	"RequestLineTests.h"
+
+1491023543 /home/attacker/Desktop/WebServio/WebServio/Tests/minunit.h
 
