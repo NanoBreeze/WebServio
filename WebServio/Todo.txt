@@ -1,0 +1,2 @@
+Path percent encoding
+Maybe use a struct for the path to separate it into different components

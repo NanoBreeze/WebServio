@@ -31,14 +31,26 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="LinkedList.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="LinkedList.h" />
 		<Unit filename="Parser.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Parser.h" />
+		<Unit filename="Tests/LinkedListTests.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Tests/LinkedListTests.h" />
+		<Unit filename="Tests/RequestLineTests.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Tests/RequestLineTests.h" />
+		<Unit filename="Tests/minunit.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="minunit.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

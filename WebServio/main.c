@@ -8,19 +8,19 @@
 #include <netdb.h>
 
 
-#include <pthread.h>
+#include "Tests/minunit.h"
+#include "Tests/RequestLineTests.h"
+//#include "Tests/LinkedListTests.h"
+
+#include "Parser.h"
 
 #define PORT "3002"
 #define BACKLOG 20
 
-#include "Parser.h"
-#include "minunit.h"
 
+int run_all_tests() {
+    tests_run = 0;
 
-#include "Tests/RequestLineTests.h"
-
-
- int run_all_tests() {
     printf("======= RUNNING REQUEST LINE PARSER TESTS ======\n");
      char *result = run_all_request_line_parser_tests();
      if (result != 0) {
@@ -31,20 +31,40 @@
      }
      printf("Tests run: %d\n\n", tests_run);
 
-    getchar();
+
+
+     printf("======= RUNNING LINKED LIST TESTS ======\n");
+     tests_run = 0;
+     result = run_all_linked_list_tests();
+     if (result != 0) {
+         printf("%s\n", result);
+     }
+     else {
+         printf("ALL TESTS PASSED\n");
+     }
+     printf("Tests run: %d\n\n", tests_run);
+
+     getchar();
      return result != 0;
+
+
+     return 0;
+
  }
 
 
 
 char buffer[10000];
 
+void hello(int* a) {
+    a = 2425;
+}
 
 int main()
 {
-    run_all_tests();
 
-/*
+    run_all_tests();
+    /*
     char a[] = "    GET /wersodijfoisdjf HTTP/1.1\r\n";
     RequestLine requestLine;
     parseRequestLine(a, &requestLine);
@@ -144,9 +164,9 @@ int main()
     }
 
     getchar();
-    return 0;
 
-    */
+      */
+    return 0;
 
 }
 

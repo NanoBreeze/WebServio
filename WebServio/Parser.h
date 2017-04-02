@@ -5,7 +5,7 @@
 
 typedef enum { GET, POST, HEAD } METHOD;
 
-typedef struct {
+typedef struct requestLine {
 
 	METHOD method;
 	char* path;
