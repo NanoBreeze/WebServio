@@ -5,7 +5,7 @@
 #include "RequestLineTests.h"
 
 
-char * test_leading_whitespace() {
+static char * test_leading_whitespace() {
     char a[] = "    GET /index/name HTTP/1.1\r\n";
 
     RequestLine requestLine;
@@ -14,7 +14,7 @@ char * test_leading_whitespace() {
      return 0;
 }
 
-char * test_GET_method() {
+static char * test_GET_method() {
     char a[] = "GET /index/name HTTP/1.1\r\n";
 
     RequestLine requestLine;
@@ -23,7 +23,7 @@ char * test_GET_method() {
      return 0;
  }
 
-char * test_POST_method() {
+static char * test_POST_method() {
     char a[] = "POST /index/name HTTP/1.1\r\n";
 
     RequestLine requestLine;
@@ -32,7 +32,7 @@ char * test_POST_method() {
      return 0;
 }
 
-char * test_HEAD_method() {
+static char * test_HEAD_method() {
     char a[] = "HEAD /index/name HTTP/1.1\r\n";
 
     RequestLine requestLine;
@@ -41,7 +41,7 @@ char * test_HEAD_method() {
      return 0;
 }
 
-char * test_unsupported_method() {
+static char * test_unsupported_method() {
     char a[] = "TRACE /index/name HTTP/1.1\r\n";
 
     RequestLine requestLine;
@@ -50,7 +50,7 @@ char * test_unsupported_method() {
      return 0;
 }
 
-char * test_excessive_whitespace_between_method_and_path() {
+static char * test_excessive_whitespace_between_method_and_path() {
 
     char a[] = "GET  /index/name HTTP/1.1\r\n";
 
@@ -60,7 +60,7 @@ char * test_excessive_whitespace_between_method_and_path() {
      return 0;
 }
 
-char * test_correct_path() {
+static char * test_correct_path() {
 
     char a[] = "GET /index/name?wow HTTP/1.1\r\n";
 
@@ -70,7 +70,7 @@ char * test_correct_path() {
      return 0;
  }
 
-char * test_path_encoding_accepts_ASCII_only() {
+static char * test_path_encoding_accepts_ASCII_only() {
 
     char a[] = "GET /index/name?wow))() HTTP/1.1\r\n";
 
@@ -80,7 +80,7 @@ char * test_path_encoding_accepts_ASCII_only() {
      return 0;
 }
 
-char * test_path_without_leading_slash() {
+static char * test_path_without_leading_slash() {
 
     char a[] = "GET index/name HTTP/1.1\r\n";
 
@@ -90,7 +90,7 @@ char * test_path_without_leading_slash() {
      return 0;
 }
 
-char * test_excessive_whitespace_between_path_and_version() {
+static char * test_excessive_whitespace_between_path_and_version() {
 
     char a[] = "GET /index/name  HTTP/1.1\r\n";
 
@@ -100,7 +100,7 @@ char * test_excessive_whitespace_between_path_and_version() {
      return 0;
 }
 
-char * test_version_without_HTTP() {
+static char * test_version_without_HTTP() {
 
     char a[] = "GET /index/name HYTP/1.1\r\n";
 
@@ -111,7 +111,7 @@ char * test_version_without_HTTP() {
 }
 
 
-char * test_version_with_letter_major() {
+static char * test_version_with_letter_major() {
 
     char a[] = "GET /index/name HTTP/j.1\r\n";
 
@@ -121,7 +121,7 @@ char * test_version_with_letter_major() {
      return 0;
 }
 
-char * test_early_CRLF() {
+static char * test_early_CRLF() {
 
     char a[] = "GET /index/name\r\nHTTP/3.1\r\n";
 
@@ -131,7 +131,7 @@ char * test_early_CRLF() {
      return 0;
 }
 
-char * test_missing_CRLF_at_end() {
+static char * test_missing_CRLF_at_end() {
 
     char a[] = "GET /index/name HTTP/3.1";
 
@@ -141,7 +141,7 @@ char * test_missing_CRLF_at_end() {
      return 0;
 }
 
-char * test_correct_CRLF() {
+static char * test_correct_CRLF() {
 
     char a[] = "GET /index/name HTTP/1.1\r\n";
 
@@ -172,5 +172,6 @@ char * run_all_request_line_parser_tests() {
      mu_run_test(test_correct_CRLF);
 
      return 0;
+
 }
 

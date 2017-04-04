@@ -4,7 +4,7 @@
 #include "minunit.h"
 #include "../LinkedList.h"
 
-char * test_create_linked_list() {
+static char * test_create_linked_list() {
 
     LinkedList* linkedList = createLinkedList();
 
@@ -14,7 +14,7 @@ char * test_create_linked_list() {
 }
 
 
-char * test_append_to_new_linked_list() {
+static char * test_append_to_new_linked_list() {
 
     LinkedList* linkedList = createLinkedList();
 	append(linkedList, "Key1", "Value1");
@@ -26,7 +26,7 @@ char * test_append_to_new_linked_list() {
 }
 
 
-char * test_append_operation() {
+static char * test_append_operation() {
 
     LinkedList* linkedList = createLinkedList();
 	append(linkedList, "Key1", "Value1");
@@ -38,7 +38,7 @@ char * test_append_operation() {
 	return 0;
 }
 
-char * test_find_exist_node()  {
+static char * test_find_exist_node()  {
 
     LinkedList* linkedList = createLinkedList();
 	append(linkedList, "Key1", "Value1");
@@ -54,7 +54,7 @@ char * test_find_exist_node()  {
 
 
 
-char * test_find_non_exist_node() {
+static char * test_find_non_exist_node() {
 
     LinkedList* linkedList = createLinkedList();
 	append(linkedList, "Key1", "Value1");

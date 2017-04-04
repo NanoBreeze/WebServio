@@ -39,6 +39,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Parser.h" />
+		<Unit filename="Tests/HeaderFieldTests" />
 		<Unit filename="Tests/LinkedListTests.c">
 			<Option compilerVar="CC" />
 		</Unit>

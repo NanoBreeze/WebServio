@@ -1,6 +1,6 @@
 
 #include "Parser.h"
-
+#include <string.h>
 
 /*
 typedef enum { GET, POST, HEAD } METHOD;
@@ -23,7 +23,6 @@ Request line begins with a method (eg, GET), then a single space, then the path,
 */
 
 bool parseRequestLine(char* start, RequestLine* requestLine) {
-
 
 	while (isspace(*start)) { start++; }
 
@@ -135,3 +134,84 @@ bool consumeCRLF(char** start) {
 
 	return false;
 }
+
+
+////////////////////////////// PARSING headerField
+bool parseHeaderField(char* start, HeaderField* headerField) {
+
+    if (!parseName(&start, headerField->name)) { return false; } //if the name already exists, return 400
+    if (!consumeColon(&start)) { return false; }
+    if (!parseValue(&start, headerField->value)) { return false; }
+    if (!consumeCRLF(&start)) { return false; }
+
+    return true;
+}
+
+//assume the only invalid characters in header name is whitespace. I know, this is against the ABNF rules in RFC 7230
+//also assumed header fields have 200 characters max
+bool parseName(char** start, char* name) {
+
+    if (isspace(**start)) { return false; }
+
+    const int MAX_HEADER_NAME_SIZE = 200;
+    char tempName[MAX_HEADER_NAME_SIZE];
+    //char b[200];
+    int pos = 0;
+
+    while (**start != ':') {
+        if (isspace(**start) || pos > MAX_HEADER_NAME_SIZE) {
+            break;
+        }
+
+        tempName[pos++] = **start;
+        (*start)++;
+    }
+
+    if (**start == ':') {
+        tempName[pos] = '\0';
+        strcpy(name, tempName);
+        //*name = tempName;   //the whole 200 bytes??
+        return true;
+    }
+
+    return false;
+}
+
+bool consumeColon(char** start) {
+    return *(*start)++ == ':';
+}
+
+//assume the only invalid characters in header name is whitespace. I know, this is against the ABNF rules in RFC 7230
+//also assumed header fields have 200 characters max
+bool parseValue(char** start, char* value) {
+
+    while (isspace(**start)) { (*start)++; }
+
+    const int MAX_HEADER_VALUE_SIZE = 205;
+    char tempValue[MAX_HEADER_VALUE_SIZE];
+    int pos = 0;
+
+    while (**start != '\r') {
+        if (isspace(**start) || pos > MAX_HEADER_VALUE_SIZE || **start == '\0') { //check for null terminator in case missing \r and to prevent keep going to end
+            break;
+        }
+
+        tempValue[pos++] = **start;
+        (*start)++;
+    }
+
+    if (**start == '\r') {
+        tempValue[pos] = '\0';
+        strcpy(value, tempValue);
+
+//        *value = tempValue;
+        return true;
+    }
+
+    return false;
+}
+
+
+
+
+

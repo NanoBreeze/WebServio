@@ -1,2 +1,5 @@
 Path percent encoding
 Maybe use a struct for the path to separate it into different components
+
+Follow ABNF for the parsing of header fields
+Header field names are case insensitive and if repeat, error. Right now, there's no checking for repetition

@@ -10,7 +10,8 @@
 
 #include "Tests/minunit.h"
 #include "Tests/RequestLineTests.h"
-//#include "Tests/LinkedListTests.h"
+#include "Tests/LinkedListTests.h"
+#include "Tests/HeaderFieldTests.h"
 
 #include "Parser.h"
 
@@ -21,7 +22,7 @@
 int run_all_tests() {
     tests_run = 0;
 
-    printf("======= RUNNING REQUEST LINE PARSER TESTS ======\n");
+     printf("======= RUNNING REQUEST LINE PARSER TESTS ======\n");
      char *result = run_all_request_line_parser_tests();
      if (result != 0) {
          printf("%s\n", result);
@@ -44,26 +45,33 @@ int run_all_tests() {
      }
      printf("Tests run: %d\n\n", tests_run);
 
-     getchar();
-     return result != 0;
 
+
+
+     printf("======= RUNNING HEADER FIELD TESTS ======\n");
+     tests_run = 0;
+     result = run_all_header_field_tests();
+     if (result != 0) {
+         printf("%s\n", result);
+     }
+     else {
+         printf("ALL TESTS PASSED\n");
+     }
+     printf("Tests run: %d\n\n", tests_run);
+
+     getchar();
 
      return 0;
-
  }
-
 
 
 char buffer[10000];
 
-void hello(int* a) {
-    a = 2425;
-}
-
 int main()
 {
 
-    run_all_tests();
+   run_all_tests();
+
     /*
     char a[] = "    GET /wersodijfoisdjf HTTP/1.1\r\n";
     RequestLine requestLine;

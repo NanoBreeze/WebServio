@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1491169646 source:/home/attacker/Desktop/WebServio/WebServio/main.c
+1491267422 source:/home/attacker/Desktop/WebServio/WebServio/main.c
 	<stdio.h>
 	<stdlib.h>
 	<errno.h>
@@ -9,25 +9,28 @@
 	<netdb.h>
 	"Tests/minunit.h"
 	"Tests/RequestLineTests.h"
+	"Tests/LinkedListTests.h"
+	"Tests/HeaderFieldTests.h"
 	"Parser.h"
 
-1491161105 /home/attacker/Desktop/WebServio/WebServio/Parser.h
+1491192595 /home/attacker/Desktop/WebServio/WebServio/Parser.h
 	<stdbool.h>
 
-1491022566 source:/home/attacker/Desktop/WebServio/WebServio/Parser.c
+1491267950 source:/home/attacker/Desktop/WebServio/WebServio/Parser.c
 	"Parser.h"
+	<string.h>
 
 1491032303 /home/attacker/Desktop/WebServio/WebServio/minunit.h
 
-1491162756 /home/attacker/Desktop/WebServio/WebServio/Tests/RequestLineTests.h
+1491267391 /home/attacker/Desktop/WebServio/WebServio/Tests/RequestLineTests.h
 
-1491166785 source:/home/attacker/Desktop/WebServio/WebServio/Tests/RequestLineTests.c
+1491267455 source:/home/attacker/Desktop/WebServio/WebServio/Tests/RequestLineTests.c
 	<stdio.h>
 	"minunit.h"
 	"../Parser.h"
 	"RequestLineTests.h"
 
-1491169658 /home/attacker/Desktop/WebServio/WebServio/Tests/minunit.h
+1491187204 /home/attacker/Desktop/WebServio/WebServio/Tests/minunit.h
 
 1491166081 source:/home/attacker/Desktop/WebServio/WebServio/LinkedList.c
 	"LinkedList.h"
@@ -38,11 +41,18 @@
 	<stdio.h>
 	<stdbool.h>
 
-1491162758 /home/attacker/Desktop/WebServio/WebServio/Tests/LinkedListTests.h
+1491267468 /home/attacker/Desktop/WebServio/WebServio/Tests/LinkedListTests.h
 
-1491166782 source:/home/attacker/Desktop/WebServio/WebServio/Tests/LinkedListTests.c
+1491267488 source:/home/attacker/Desktop/WebServio/WebServio/Tests/LinkedListTests.c
 	"LinkedListTests.h"
 	<stdlib.h>
 	"minunit.h"
 	"../LinkedList.h"
+
+1491267853 source:/home/attacker/Desktop/WebServio/WebServio/Tests/HeaderFieldTests.c
+	"HeaderFieldTests.h"
+	"minunit.h"
+	"../Parser.h"
+
+1491267499 /home/attacker/Desktop/WebServio/WebServio/Tests/HeaderFieldTests.h
 

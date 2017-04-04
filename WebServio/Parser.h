@@ -15,6 +15,11 @@ typedef struct requestLine {
 
 } RequestLine;
 
+typedef struct headerField {
+    char name[200]; //because when a pointer, we use the temp buffer as an array, and when assigning the temp buffer for name and value end up at the same address so overwrite
+    char value[200];
+} HeaderField;
+
 bool parseRequestLine(char* start, RequestLine* requestLine);
 bool getMethod(char** start, METHOD* method);
 bool consumeSP(char** start);
@@ -22,7 +27,13 @@ bool getPath(char** start, char** path);
 bool getProtocolVersion(char** start, int* major, int* minor);
 bool consumeCRLF(char** start);
 
-int parseHeaders(const char[]);
+
+
+bool parseHeaderField(char* start, HeaderField* headerField);
+bool parseName(char** start, char* name);
+bool consumeColon(char** start);
+bool parseValue(char** start, char* value);
+
 
 
 #endif // PARSER_H_INCLUDED
