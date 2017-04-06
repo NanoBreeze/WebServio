@@ -10,6 +10,9 @@ void freeLinkedList(LinkedList** linkedList) {
 
     while ((*linkedList)->head) {
         Node* temp = (*linkedList)->head->next;
+
+        free((*linkedList)->head->key);
+        free((*linkedList)->head->value);
         free((*linkedList)->head);
         (*linkedList)->head = temp;
     }
@@ -29,8 +32,9 @@ void append(LinkedList* linkedList, char* key, char* value) {
         return;
     }
 
-    newNode->key = key;
-    newNode->value = value;
+    newNode->key = strdup(key);
+    newNode->value = strdup(value);
+
     newNode->next = NULL;
 
     if (!linkedList->head) {
@@ -75,3 +79,25 @@ LinkedList* createLinkedList() {
     return linkedList;
 }
 
+//O(N^2) double iteration
+bool containsDuplicate(LinkedList* linkedList) {
+
+    if (!linkedList) { return false; }
+    if (linkedList->count < 2) { return false; }
+
+    Node* outer = linkedList->head;
+
+
+    while (outer) {
+        Node* inner = outer->next;
+        while (inner) {
+            if (strcmp(inner->key, outer->key) == 0) {
+                return true;
+            }
+            inner = inner->next;
+        }
+        outer = outer->next;
+    }
+
+    return false;
+}

@@ -14,6 +14,7 @@
 #include "Tests/HeaderFieldTests.h"
 
 #include "Parser.h"
+#include "LinkedList.h"
 
 #define PORT "3002"
 #define BACKLOG 20
@@ -47,7 +48,6 @@ int run_all_tests() {
 
 
 
-
      printf("======= RUNNING HEADER FIELD TESTS ======\n");
      tests_run = 0;
      result = run_all_header_field_tests();
@@ -62,6 +62,7 @@ int run_all_tests() {
      getchar();
 
      return 0;
+
  }
 
 
@@ -70,6 +71,19 @@ char buffer[10000];
 int main()
 {
 
+    char a[] = "Host: www.youtube.com\r\n"
+"User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0\r\n"
+"Accept: text/html,application/xhtml+xml,application/xml;q=0.9;q=0.8\r\n"
+"Accept-Language: en-US,en;q=0.5\r\n\r\n";
+
+    LinkedList* headerFields = createLinkedList();
+
+    if (parseHeader(a, headerFields)) {
+        if (containsDuplicate(headerFields) || !find(headerFields, "host")) {
+                printf("OOOOPS");
+    }
+
+    }
    run_all_tests();
 
     /*

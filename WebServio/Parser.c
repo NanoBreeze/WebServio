@@ -1,5 +1,7 @@
 
 #include "Parser.h"
+#include "LinkedList.h"
+
 #include <string.h>
 
 /*
@@ -137,18 +139,58 @@ bool consumeCRLF(char** start) {
 
 
 ////////////////////////////// PARSING headerField
-bool parseHeaderField(char* start, HeaderField* headerField) {
 
-    if (!parseName(&start, headerField->name)) { return false; } //if the name already exists, return 400
-    if (!consumeColon(&start)) { return false; }
-    if (!parseValue(&start, headerField->value)) { return false; }
-    if (!consumeCRLF(&start)) { return false; }
+bool parseHeader(char* start, LinkedList* headerFields) {
+
+/*
+Host: www.youtube.com
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9;q=0.8
+Accept-Language: en-US,en;q=0.5
+*/
+
+
+
+    //recall that there's a CRLF between the last header and the
+    while (*start != '\r' && *(start + 1) != '\n') {
+        HeaderField headerField;
+
+        //maybe a little redundant?? We can make each node of the linked list to be exactly like a headerfield
+        //but this current approach, although redundant for this single solution, is more extensible. What if we
+        //have other fields in the future?
+        if (parseHeaderField(&start, &headerField)) {
+            const int MAX_HEADER_NAME_SIZE = 200; //this constant is repeated, consider refactor it later
+
+            //we want the header linked list to contain header names that are lowercase so we convert to lowercase
+            char lowerHeaderFieldName[200];
+            strcpy(lowerHeaderFieldName, headerField.name);
+            for (int i = 0; lowerHeaderFieldName[i]; i++) {
+                lowerHeaderFieldName[i] = tolower(lowerHeaderFieldName[i]);
+            }
+
+            append(headerFields, lowerHeaderFieldName, headerField.value);
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool parseHeaderField(char** start, HeaderField* headerField) {
+
+    if (!parseName(start, headerField->name)) { return false; } //if the name already exists, return 400
+    if (!consumeColon(start)) { return false; }
+    if (!parseValue(start, headerField->value)) { return false; }
+    if (!consumeCRLF(start)) { return false; }
 
     return true;
 }
 
 //assume the only invalid characters in header name is whitespace. I know, this is against the ABNF rules in RFC 7230
 //also assumed header fields have 200 characters max
+//further assume that no header field can start with a whitespace (I know, in RFC, it's only the first header field)
 bool parseName(char** start, char* name) {
 
     if (isspace(**start)) { return false; }
@@ -187,12 +229,12 @@ bool parseValue(char** start, char* value) {
 
     while (isspace(**start)) { (*start)++; }
 
-    const int MAX_HEADER_VALUE_SIZE = 205;
+    const int MAX_HEADER_VALUE_SIZE = 200;
     char tempValue[MAX_HEADER_VALUE_SIZE];
     int pos = 0;
 
     while (**start != '\r') {
-        if (isspace(**start) || pos > MAX_HEADER_VALUE_SIZE || **start == '\0') { //check for null terminator in case missing \r and to prevent keep going to end
+        if (pos > MAX_HEADER_VALUE_SIZE || **start == '\0') { //check for null terminator in case missing \r and to prevent keep going to end
             break;
         }
 

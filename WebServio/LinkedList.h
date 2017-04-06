@@ -28,7 +28,7 @@ typedef struct linkedList {
 } LinkedList;
 
 
-
+bool containsDuplicate(LinkedList* linkedList);
 void freeLinkedList(LinkedList** linkedList);
 void append(LinkedList* linkedList, char* key, char* value);
 char* find(LinkedList* linkedList, char* key);
