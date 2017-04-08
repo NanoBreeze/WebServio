@@ -7,7 +7,6 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-
 #include "Tests/minunit.h"
 #include "Tests/RequestLineTests.h"
 #include "Tests/LinkedListTests.h"
@@ -70,6 +69,7 @@ char buffer[10000];
 
 int main()
 {
+/*
 
     char a[] = "Host: www.youtube.com\r\n"
 "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0\r\n"
@@ -86,71 +86,62 @@ int main()
     }
    run_all_tests();
 
-    /*
+
     char a[] = "    GET /wersodijfoisdjf HTTP/1.1\r\n";
     RequestLine requestLine;
     parseRequestLine(a, &requestLine);
-
     char* b = strtok(a, " ");
-
     while (b != NULL) {
         printf("The value of b is: %s\n", b);
         b = strtok(NULL, " ");
     }
-
+*/
 
     struct addrinfo hints;
     struct addrinfo *result;
-
     memset(&hints, 0, sizeof hints);
-
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
-
     int status;
     if ((status = getaddrinfo(NULL, PORT, &hints, &result)) != 0) {
         printf("Error with getaddrinfo: %s\n", gai_strerror(status));
         return;
     }
-
     int fileDescriptor;
     if ((fileDescriptor = socket(result->ai_family, result->ai_socktype, result->ai_protocol)) == -1) {
         printf("Error with fileDescriptor: %s\n", strerror(errno));
         return;
     }
-
     int yes = 1;
     int setSockErrorCode;
     if ((setSockErrorCode = setsockopt(fileDescriptor, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes)) == -1) {
         printf("Error with setting setsockopt to allow reusing port: %s\n", strerror(errno));
         return;
     }
-
     int bindErrorCode;
     if ((bindErrorCode = bind(fileDescriptor, result->ai_addr, result->ai_addrlen)) == -1) {
         printf("%d", fileDescriptor);
         printf("Error with binding: %s\n", strerror(errno));
         return;
     }
-
     int listenErrorCode;
     if ((listenErrorCode = listen(fileDescriptor, BACKLOG)) == -1) {
         printf("Error with listening: %s\n", strerror(errno));
         return;
     }
-
-    printf("about to wait\n");
-
+    printf("about to wait to accept\n");
     int acceptedFileDescriptor;
     socklen_t acceptedFileDescriptorLength = sizeof acceptedFileDescriptor;
     struct sockaddr_storage acceptedAddr;
+
     if ((acceptedFileDescriptor = accept(fileDescriptor, (struct sockaddr*) &acceptedAddr, &acceptedFileDescriptorLength)) == -1) {
         printf("Error with accepting: %s\n", strerror(errno));
         return;
     }
-
     printf("%d", acceptedFileDescriptor);
+
+
 
     int bytesReceived = 0;
     if ( (bytesReceived = recv(acceptedFileDescriptor, buffer, sizeof buffer, 0)) <= 0) {
@@ -164,31 +155,39 @@ int main()
         close(acceptedFileDescriptor);
     }
     else {
-
-
-
     //char* delimitedStr = strtok(buffer, "\r\n");
-
-
-    for (int i = 0 ; i < strlen(buffer); i++) {
-        printf("The characters is: %d\n", buffer[i]);
-        int requestLineEndPos = parseRequestLine(buffer); //requestLineEndPos would be on the last character in the request line, aka, the LF
-
-    }
-
-
+  //  for (int i = 0 ; i < strlen(buffer); i++) {
+   //     printf("The characters is: %d\n", buffer[i]);
+    //    int requestLineEndPos = parseRequestLine(buffer); //requestLineEndPos would be on the last character in the request line, aka, the LF
+    //}
    // while (delimitedStr != NULL) {
       //  printf("The value of delimitedStr is: %s\n", delimitedStr);
       // delimitedStr = strtok(NULL, "\r\n");
 //    }
 
         printf("Received data: \n%s", buffer);
+
+        printf("About to send\n");
+
+         int bytesSent = 0;
+    char* blue = "Hello! osdijfosidjfsoidjfoiwjea foiawejlowaeiojr woaeihrweihteilawuhtilweuhtowesjfo;wejif ;oawejf;oaweajf o;wejf ;owejif ;oaweajif iw;aeofji ;oawejif ;oawejf ;oawefj we;of ";
+    if ((bytesSent = send(acceptedFileDescriptor, blue, strlen(blue), 0)) == -1 )
+    {
+        printf("Error with sending data: %s\n", strerror(errno));
+    }
+    else {
+        printf("good!\n");
+        close(acceptedFileDescriptor); //not sure why without this, doesn't send. Wierd????? Wierd!
     }
 
+
+    }
     getchar();
 
-      */
     return 0;
 
 }
+
+
+
 
