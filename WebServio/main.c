@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+
 
 #include "Tests/minunit.h"
 #include "Tests/RequestLineTests.h"
@@ -67,6 +69,30 @@ int run_all_tests() {
 
 char buffer[10000];
 
+
+bool sendall(int fileDescriptor, char* buffer, int length) {
+
+    int totalBytesSent = 0;
+    int bytesRemaining = length;
+
+    while (totalBytesSent < length) {
+        int bytesSent = 0;
+
+        if (( bytesSent = send(fileDescriptor, buffer + totalBytesSent, bytesRemaining, 0)) == -1) {
+            break;
+        }
+        else {
+            totalBytesSent += bytesSent;
+            bytesRemaining -= bytesSent;
+
+        }
+    }
+
+    return totalBytesSent == length;
+
+}
+
+
 int main()
 {
 /*
@@ -96,7 +122,30 @@ int main()
         b = strtok(NULL, " ");
     }
 */
+/*
+    FILE* fp;
+    int c;
+    fp = fopen("hey.html", "rb");
 
+    if (fp) {
+        fseek(fp, 0, SEEK_END);
+        long fsize = ftell(fp);
+        rewind(fp);
+
+        char* fileText = (char*) malloc(fsize+1);
+        if (!fileText) {
+            printf("Out of memory!");
+            return;
+        }
+        fread(fileText, fsize, 1, fp);
+
+        fileText[fsize] = '\0';
+        printf("%s", fileText);
+        fclose(fp);
+    }
+
+    getchar();
+*/
     struct addrinfo hints;
     struct addrinfo *result;
     memset(&hints, 0, sizeof hints);
@@ -169,23 +218,43 @@ int main()
 
         printf("About to send\n");
 
-         int bytesSent = 0;
-    char* blue = "Hello! osdijfosidjfsoidjfoiwjea foiawejlowaeiojr woaeihrweihteilawuhtilweuhtowesjfo;wejif ;oawejf;oaweajf o;wejf ;owejif ;oaweajif iw;aeofji ;oawejif ;oawejf ;oawefj we;of ";
-    if ((bytesSent = send(acceptedFileDescriptor, blue, strlen(blue), 0)) == -1 )
-    {
-        printf("Error with sending data: %s\n", strerror(errno));
-    }
-    else {
-        printf("good!\n");
-        close(acceptedFileDescriptor); //not sure why without this, doesn't send. Wierd????? Wierd!
-    }
+        FILE* fp;
+        fp = fopen("hey.html", "rb");
+        char* fileText;
+        long fsize = 0;
+
+        //store all text in one memory block. Consider chunking later
+        if (fp) {
+            fseek(fp, 0, SEEK_END);
+            fsize = ftell(fp);
+            rewind(fp);
+
+            fileText = (char*) malloc(fsize+1);
+            if (!fileText) {
+                printf("Out of memory!\n");
+                return;
+            }
+            fread(fileText, fsize, 1, fp);
+
+            fileText[fsize] = '\0';
+            printf("%s", fileText);
+            fclose(fp);
+        }
 
 
+        if (sendall(acceptedFileDescriptor, fileText, fsize)) {
+            printf("All sent!\n");
+            close(acceptedFileDescriptor); //not sure why without this, doesn't send. Wierd????? Wierd!
+        }
+        else {
+            printf("Error with sending data: %s\n", strerror(errno));
+
+        }
     }
+
     getchar();
 
     return 0;
-
 }
 
 
