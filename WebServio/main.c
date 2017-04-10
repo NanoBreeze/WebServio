@@ -89,63 +89,11 @@ bool sendall(int fileDescriptor, char* buffer, int length) {
     }
 
     return totalBytesSent == length;
-
 }
 
 
 int main()
 {
-/*
-
-    char a[] = "Host: www.youtube.com\r\n"
-"User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0\r\n"
-"Accept: text/html,application/xhtml+xml,application/xml;q=0.9;q=0.8\r\n"
-"Accept-Language: en-US,en;q=0.5\r\n\r\n";
-
-    LinkedList* headerFields = createLinkedList();
-
-    if (parseHeader(a, headerFields)) {
-        if (containsDuplicate(headerFields) || !find(headerFields, "host")) {
-                printf("OOOOPS");
-    }
-
-    }
-   run_all_tests();
-
-
-    char a[] = "    GET /wersodijfoisdjf HTTP/1.1\r\n";
-    RequestLine requestLine;
-    parseRequestLine(a, &requestLine);
-    char* b = strtok(a, " ");
-    while (b != NULL) {
-        printf("The value of b is: %s\n", b);
-        b = strtok(NULL, " ");
-    }
-*/
-/*
-    FILE* fp;
-    int c;
-    fp = fopen("hey.html", "rb");
-
-    if (fp) {
-        fseek(fp, 0, SEEK_END);
-        long fsize = ftell(fp);
-        rewind(fp);
-
-        char* fileText = (char*) malloc(fsize+1);
-        if (!fileText) {
-            printf("Out of memory!");
-            return;
-        }
-        fread(fileText, fsize, 1, fp);
-
-        fileText[fsize] = '\0';
-        printf("%s", fileText);
-        fclose(fp);
-    }
-
-    getchar();
-*/
     struct addrinfo hints;
     struct addrinfo *result;
     memset(&hints, 0, sizeof hints);
@@ -190,8 +138,6 @@ int main()
     }
     printf("%d", acceptedFileDescriptor);
 
-
-
     int bytesReceived = 0;
     if ( (bytesReceived = recv(acceptedFileDescriptor, buffer, sizeof buffer, 0)) <= 0) {
         //connection closed
@@ -204,17 +150,79 @@ int main()
         close(acceptedFileDescriptor);
     }
     else {
-    //char* delimitedStr = strtok(buffer, "\r\n");
-  //  for (int i = 0 ; i < strlen(buffer); i++) {
-   //     printf("The characters is: %d\n", buffer[i]);
-    //    int requestLineEndPos = parseRequestLine(buffer); //requestLineEndPos would be on the last character in the request line, aka, the LF
-    //}
-   // while (delimitedStr != NULL) {
-      //  printf("The value of delimitedStr is: %s\n", delimitedStr);
-      // delimitedStr = strtok(NULL, "\r\n");
-//    }
 
-        printf("Received data: \n%s", buffer);
+        printf("RECEIVED DATA: \n%s", buffer);
+        printf("==================================");
+
+        RequestLine requestLine;
+        int requestLineLength = 0;
+        if ((requestLineLength = parseRequestLine(buffer, &requestLine)) == -1) {
+            printf("Error in the request line\n");
+            return;
+        }
+
+        LinkedList* headerFields = createLinkedList();
+        int headerLength = 0;
+
+        if ((headerLength = parseHeader(buffer + requestLineLength, headerFields)) == -1) {
+            printf("Error in the headers\n");
+            return;
+        }
+
+        //error checking on the header fields
+        if (containsDuplicate(headerFields)) {
+            printf("Error: header fields must not contain duplicates");
+            return;
+        }
+
+        //host must exist
+        char* host = find(headerFields, "host");;
+        if (!host) {
+            printf("Error: There must be a host header field present.\n");
+            return;
+        }
+
+        char* message = NULL;
+        if (buffer[requestLineLength + headerLength] != '\0' ) { //message exists
+            char* c_contentLength = find(headerFields, "content-length");
+
+            if (!c_contentLength) {
+                printf("Error, if message exists, must contain content length header");
+                return;
+            }
+
+            int i_contentLength = atoi(c_contentLength);
+
+            message = (char*) malloc(i_contentLength + 1);
+            extractMessage(buffer + requestLineLength + headerLength, i_contentLength, message);
+        }
+
+
+
+        printf("================== PARSED DATA =====================\n\n");
+
+        printf("Request line\n");
+        printf("\tMethod: %d. 0: GET, 1: POST, 2: HEAD\n", requestLine.method);
+        printf("\tPath: %s\n", requestLine.path);
+        printf("\tMajor: %d\n", requestLine.major);
+        printf("\tMinor: %d\n", requestLine.minor);
+
+
+        printf("Headers\n");
+        Node* current = headerFields->head;
+
+        while (current) {
+            printf("\t%s: %s\n", current->key, current->value);
+            current = current->next;
+        }
+
+        if (message) {
+            printf("Message\n");
+            printf("%s", message);
+
+        }
+
+        /*
 
         printf("About to send\n");
 
@@ -250,6 +258,8 @@ int main()
             printf("Error with sending data: %s\n", strerror(errno));
 
         }
+
+        */
     }
 
     getchar();

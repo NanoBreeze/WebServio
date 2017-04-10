@@ -5,44 +5,31 @@
 #include <string.h>
 
 /*
-typedef enum { GET, POST, HEAD } METHOD;
-
-typedef struct {
-
-	METHOD method;
-	char* path;
-	int major;
-	int minor;
-
-} RequestLine;
-
-RequestLine parseRequestLine(const char[]);
-
-
 For robustness, let all the CRLF go if they appear before the request line. Here, we simply remove all eading whitespace
 Request line begins with a method (eg, GET), then a single space, then the path, then another single space, then the protocol version, and ends with CRLF
-
 */
 
-bool parseRequestLine(char* start, RequestLine* requestLine) {
+int parseRequestLine(char* start, RequestLine* requestLine) {
+
+    char* orig_start = start; //includes CRLF
 
 	while (isspace(*start)) { start++; }
 
 //hmmmm, this is an interesting style, using returns, will check if there are better alternatives for readability though.
 
-	if (!getMethod(&start, &(requestLine->method))) { return false; }
+	if (!getMethod(&start, &(requestLine->method))) { return -1; }
 
-	if (!consumeSP(&start)) { return false; }
+	if (!consumeSP(&start)) { return -1; }
 
-	if (!getPath(&start, &(requestLine->path))) { return false; }
+	if (!getPath(&start, &(requestLine->path))) { return -1; }
 
-	if (!consumeSP(&start)) { return false; }
+	if (!consumeSP(&start)) { return -1; }
 
-	if (!getProtocolVersion(&start, &(requestLine->major), &(requestLine->minor))) { return false ; } //is this passing by value? Need to pass by ref
+	if (!getProtocolVersion(&start, &(requestLine->major), &(requestLine->minor))) { return -1; } //is this passing by value? Need to pass by ref
 
-	if (!consumeCRLF(&start)) { return false; }
+	if (!consumeCRLF(&start)) { return -1; }
 
-	return true;
+	return (start-orig_start) / sizeof(char);
 }
 
 //methods are case sensitive
@@ -140,18 +127,11 @@ bool consumeCRLF(char** start) {
 
 ////////////////////////////// PARSING headerField
 
-bool parseHeader(char* start, LinkedList* headerFields) {
+int parseHeader(char* start, LinkedList* headerFields) {
 
-/*
-Host: www.youtube.com
-User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9;q=0.8
-Accept-Language: en-US,en;q=0.5
-*/
+    char* orig_start = start;
 
-
-
-    //recall that there's a CRLF between the last header and the
+    //recall that there's a CRLF between the last header and the optional message
     while (*start != '\r' && *(start + 1) != '\n') {
         HeaderField headerField;
 
@@ -171,10 +151,15 @@ Accept-Language: en-US,en;q=0.5
             append(headerFields, lowerHeaderFieldName, headerField.value);
         }
         else {
-            return false;
+            return -1;
         }
     }
-    return true;
+
+    if (consumeCRLF(&start)) {
+        return (start - orig_start) / sizeof(char);
+    }
+
+    return -1;
 }
 
 
@@ -254,6 +239,14 @@ bool parseValue(char** start, char* value) {
 }
 
 
+////////////////////////// MESSAGE
+
+
+
+void extractMessage(char* start, int length, char* message) {
+    strncpy(message, start, length);
+    int a = 34;
+}
 
 
 

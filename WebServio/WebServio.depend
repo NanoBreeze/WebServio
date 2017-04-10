@@ -1,9 +1,10 @@
 # depslib dependency file v1.0
-1491713203 source:/home/attacker/Desktop/WebServio/WebServio/main.c
+1491859413 source:/home/attacker/Desktop/WebServio/WebServio/main.c
 	<stdio.h>
 	<stdlib.h>
 	<errno.h>
 	<string.h>
+	<stdbool.h>
 	<sys/types.h>
 	<sys/socket.h>
 	<netdb.h>
@@ -14,11 +15,11 @@
 	"Parser.h"
 	"LinkedList.h"
 
-1491444977 /home/attacker/Desktop/WebServio/WebServio/Parser.h
+1491858662 /home/attacker/Desktop/WebServio/WebServio/Parser.h
 	<stdbool.h>
 	"LinkedList.h"
 
-1491444870 source:/home/attacker/Desktop/WebServio/WebServio/Parser.c
+1491858868 source:/home/attacker/Desktop/WebServio/WebServio/Parser.c
 	"Parser.h"
 	"LinkedList.h"
 	<string.h>
@@ -35,12 +36,12 @@
 
 1491187204 /home/attacker/Desktop/WebServio/WebServio/Tests/minunit.h
 
-1491442919 source:/home/attacker/Desktop/WebServio/WebServio/LinkedList.c
+1491858492 source:/home/attacker/Desktop/WebServio/WebServio/LinkedList.c
 	"LinkedList.h"
 	<stdlib.h>
 	<string.h>
 
-1491441931 /home/attacker/Desktop/WebServio/WebServio/LinkedList.h
+1491858662 /home/attacker/Desktop/WebServio/WebServio/LinkedList.h
 	<stdio.h>
 	<stdbool.h>
 
