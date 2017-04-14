@@ -35,6 +35,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="LinkedList.h" />
+		<Unit filename="MessageFactory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="MessageFactory.h" />
 		<Unit filename="Parser.c">
 			<Option compilerVar="CC" />
 		</Unit>

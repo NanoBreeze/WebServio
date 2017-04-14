@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <time.h>
 
 
 #include "Tests/minunit.h"
@@ -187,7 +188,7 @@ int main()
             char* c_contentLength = find(headerFields, "content-length");
 
             if (!c_contentLength) {
-                printf("Error, if message exists, must contain content length header");
+                printf("Error, if message exists, must contain content length header. Error 411");
                 return;
             }
 
@@ -222,35 +223,9 @@ int main()
 
         }
 
-        /*
-
-        printf("About to send\n");
-
-        FILE* fp;
-        fp = fopen("hey.html", "rb");
-        char* fileText;
-        long fsize = 0;
-
-        //store all text in one memory block. Consider chunking later
-        if (fp) {
-            fseek(fp, 0, SEEK_END);
-            fsize = ftell(fp);
-            rewind(fp);
-
-            fileText = (char*) malloc(fsize+1);
-            if (!fileText) {
-                printf("Out of memory!\n");
-                return;
-            }
-            fread(fileText, fsize, 1, fp);
-
-            fileText[fsize] = '\0';
-            printf("%s", fileText);
-            fclose(fp);
-        }
-
-
-        if (sendall(acceptedFileDescriptor, fileText, fsize)) {
+    char* response = create411Message();
+    if (!response) { return NULL; }
+        if (sendall(acceptedFileDescriptor, response, strlen(response))) {
             printf("All sent!\n");
             close(acceptedFileDescriptor); //not sure why without this, doesn't send. Wierd????? Wierd!
         }
@@ -259,7 +234,7 @@ int main()
 
         }
 
-        */
+
     }
 
     getchar();

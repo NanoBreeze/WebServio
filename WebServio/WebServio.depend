@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1491859413 source:/home/attacker/Desktop/WebServio/WebServio/main.c
+1492208115 source:/home/attacker/Desktop/WebServio/WebServio/main.c
 	<stdio.h>
 	<stdlib.h>
 	<errno.h>
@@ -8,6 +8,7 @@
 	<sys/types.h>
 	<sys/socket.h>
 	<netdb.h>
+	<time.h>
 	"Tests/minunit.h"
 	"Tests/RequestLineTests.h"
 	"Tests/LinkedListTests.h"
@@ -59,4 +60,15 @@
 	"../Parser.h"
 
 1491267499 /home/attacker/Desktop/WebServio/WebServio/Tests/HeaderFieldTests.h
+
+1492207997 source:/home/attacker/Desktop/WebServio/WebServio/MessageFactory.c
+	"MessageFactory.h"
+	<time.h>
+	<string.h>
+	<stdio.h>
+	<math.h>
+
+1492207873 /home/attacker/Desktop/WebServio/WebServio/MessageFactory.h
+	<stdbool.h>
+	"LinkedList.h"
 

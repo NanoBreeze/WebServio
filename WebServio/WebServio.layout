@@ -1,39 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="Tests/LinkedListTests.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="198" topLine="0" />
-		</Cursor>
-	</File>
 	<File name="main.c" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1938" topLine="96" />
+			<Cursor1 position="5288" topLine="171" />
 		</Cursor>
 	</File>
 	<File name="Parser.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1111" topLine="21" />
-		</Cursor>
-	</File>
-	<File name="Tests/LinkedListTests.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4422" topLine="149" />
-		</Cursor>
-	</File>
-	<File name="Parser.c" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="6451" topLine="244" />
-		</Cursor>
-	</File>
-	<File name="Tests/RequestLineTests.h" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="74" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Tests/HeaderFieldTests.c" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2665" topLine="62" />
+			<Cursor1 position="1111" topLine="2" />
 		</Cursor>
 	</File>
 	<File name="Tests/RequestLineTests.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -41,9 +16,14 @@
 			<Cursor1 position="3638" topLine="134" />
 		</Cursor>
 	</File>
+	<File name="Tests/HeaderFieldTests.c" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2665" topLine="57" />
+		</Cursor>
+	</File>
 	<File name="LinkedList.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="801" topLine="15" />
+			<Cursor1 position="801" topLine="2" />
 		</Cursor>
 	</File>
 	<File name="Tests/minunit.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -51,9 +31,29 @@
 			<Cursor1 position="134" topLine="0" />
 		</Cursor>
 	</File>
+	<File name="Tests/LinkedListTests.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="198" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Parser.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6403" topLine="214" />
+		</Cursor>
+	</File>
+	<File name="Tests/LinkedListTests.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4422" topLine="149" />
+		</Cursor>
+	</File>
 	<File name="LinkedList.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="1950" topLine="33" />
+		</Cursor>
+	</File>
+	<File name="Tests/RequestLineTests.h" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="74" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

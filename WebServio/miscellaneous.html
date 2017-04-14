@@ -1,0 +1,35 @@
+<html>
+<head>
+	<title>Miscellaneous</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="home.html">WebServio</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="miscellaneous.html">200 Miscellaneous Page</a></li>
+      <li><a href="301.html">301 Page</a></li>
+      <li><a href="404.html">404 Page</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+<div class="container text-center">
+	<h1>Welcome to the 200 Miscellaneous Page!</h1>
+	<p><button class="btn btn-success" onclick="surprise()">Click here for a surprise!</button></p>
+
+	<p id="surprise" style="color: green; display:none">SURPRISE!</p>
+</div>
+</html>
+
+<script>
+	function surprise() {
+		$('#surprise').css('display', 'block');
+	}
+</script>
+
