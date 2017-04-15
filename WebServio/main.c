@@ -96,6 +96,27 @@ bool sendall(int fileDescriptor, char* buffer, int length) {
 
 int main()
 {
+    char* settingsText = getFileText("settings.conf");
+
+    LinkedList* settings = createLinkedList();
+    LinkedList* settings301 = createLinkedList();
+
+    parseSettings(settingsText, settings, settings301);
+
+    free(settingsText);
+
+    if (containsDuplicate(settings))  {
+        printf("settings contains duplicates\n");
+        return;
+    }
+
+    if (containsDuplicate(settings301)) {
+        printf("there are duplicate 301 settings\n");
+        return;
+    }
+
+
+
     struct addrinfo hints;
     struct addrinfo *result;
     memset(&hints, 0, sizeof hints);

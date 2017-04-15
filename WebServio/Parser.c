@@ -240,7 +240,7 @@ bool parseValue(char** start, char* value) {
 }
 
 
-////////////////////////// MESSAGE
+////////////////////////// MESSAGE Body
 
 
 
@@ -249,5 +249,147 @@ void extractMessage(char* start, int length, char* message) {
     int a = 34;
 }
 
+////////////////////// CONFIGURATION SETTINGS
 
+bool parseSettings(char* start, LinkedList* settings, LinkedList* settings301) {
+
+    char* origStart = start;
+
+
+    while ((start - origStart) / sizeof(char) < strlen(origStart)) {
+
+        while (isspace(*start)) { start++; }
+
+        //maybe using strtok would be easier? Next time...
+        const int MAX_SETTING_TYPE_LENGTH = 18;
+        char settingType[MAX_SETTING_TYPE_LENGTH + 1];
+        int pos = 0;
+
+        while (*start != ' ') {
+            if (pos > MAX_SETTING_TYPE_LENGTH || pos > strlen(origStart)) { return false; }
+            settingType[pos] = *start;
+            start++;
+            pos++;
+        }
+
+        settingType[pos] = '\0';
+
+        if (!consumeSP(&start)) { return false; }
+
+        if (strcmp(settingType, "Index") == 0) {
+            if (!parseIndex(&start, settings) ) { return false; }
+        }
+        else if (strcmp(settingType, "404") == 0) {
+            if (!parse404(&start, settings) ) { return false; }
+        }
+        else if (strcmp(settingType, "301") == 0) {
+            if (!parse301(&start, settings301) ) { return false; }
+        }
+        else if (strcmp(settingType, "CaseSensitivePaths") == 0) {
+            if (!parseCaseSensitivePaths(&start, settings) ) { return false; }
+        }
+        else if (strcmp(settingType, "Backlog") == 0) {
+            if (!parseBacklog(&start, settings) ) { return false; }
+        }
+        else if (strcmp(settingType, "DirListings") == 0) {
+            if (!parseDirListings(&start, settings) ) { return false; }
+        }
+        else {        //error
+            return false;
+        }
+
+        if (!consumeLF(&start)) { return false; }
+    }
+
+    return true;
+}
+
+
+bool parseIndex(char** start, LinkedList* settings) {
+
+    char* fileName = getTextToLF(*start);
+    append(settings, "Index", fileName);
+
+    return skipToLF(start);
+}
+
+
+bool parse404(char** start, LinkedList* settings) {
+
+    char* fileName = getTextToLF(*start);
+    append(settings, "404", fileName);
+
+    return skipToLF(start);
+}
+
+
+bool parse301(char** start, LinkedList* settings301) {
+
+    char* dupStart = strdup(*start);
+    char* src = strtok(dupStart, " ");
+    char* dest = strtok(NULL, "\n");
+
+    append(settings301, src, dest);
+
+    while (**start != '\n') {
+        (*start)++;
+    }
+
+    return true;
+}
+
+
+bool parseCaseSensitivePaths(char** start, LinkedList* settings) {
+
+    char* fileName = getTextToLF(*start);
+    append(settings, "CaseSensitivePaths", fileName);
+
+    return skipToLF(start);
+}
+
+
+bool parseBacklog(char** start, LinkedList* settings) {
+
+    char* fileName = getTextToLF(*start);
+    append(settings, "Backlog", fileName);
+
+    return skipToLF(start);
+
+}
+
+
+bool parseDirListings(char** start, LinkedList* settings) {
+
+    char* fileName = getTextToLF(*start);
+    append(settings, "DirListings", fileName);
+
+    return skipToLF(start);
+}
+
+//what if there is no LF? We don't want to look beyond the char*. Should pass in length to look at
+bool skipToLF(char** start) {
+      while (**start != '\n') {
+        if (isspace(**start)) { return false; }
+        (*start)++;
+    }
+
+    return true;
+}
+
+
+char* getTextToLF(char* start) {
+    char* dupStart = strdup(start);
+    char* text = strtok(dupStart, "\n");
+
+    return text;
+}
+
+bool consumeLF(char** start) {
+	if (**start == '\n') {
+		*start++;
+		return true;
+	}
+
+	return false;
+}
 

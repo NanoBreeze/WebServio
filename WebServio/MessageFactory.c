@@ -1,9 +1,10 @@
 #include "MessageFactory.h"
-#include <time.h>
+#include "Lib.h"
+
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include <dirent.h>
+
 
 
 /**
@@ -134,47 +135,6 @@ char* create200MessageDir(char* dirPath) {
 
 }
 
-
-char* getCurrentDateTime() {
-    time_t rawtime;
-    struct tm* timeinfo;
-    time(&rawtime);
-    timeinfo = gmtime(&rawtime);
-
-    char* dateTime = asctime(timeinfo);
-    dateTime[strlen(dateTime) - 1] = 0; //trim the \n
-
-    //return "sodfij";
-    return dateTime; //date format isn't correct, right now showing local time only
-}
-
-char* getFileText(char* file) {
-
-        FILE* fp;
-        fp = fopen(file, "rb");
-        char* fileText;
-        long fsize = 0;
-
-        //store all text in one memory block. Consider chunking later
-        if (fp) {
-            fseek(fp, 0, SEEK_END);
-            fsize = ftell(fp);
-            rewind(fp);
-
-            fileText = (char*) malloc(fsize+1);
-            if (!fileText) {
-                printf("Out of memory!\n");
-                return NULL;
-            }
-            fread(fileText, fsize, 1, fp);
-
-            fileText[fsize] = '\0';
-            printf("%s", fileText);
-            fclose(fp);
-        }
-
-        return fileText;
-}
 
 char* createMessageWithBodyFromFile(char* file, char* statusLine) {
 

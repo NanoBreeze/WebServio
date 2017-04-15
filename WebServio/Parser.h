@@ -37,4 +37,18 @@ bool parseValue(char** start, char* value);
 void extractMessage(char* start, int length, char* message);
 
 
+bool parseSettings(char* start, LinkedList* settings, LinkedList* settings301); //separate linked list for 301 because contains two entries: src and destination
+bool parseIndex(char** start, LinkedList* settings);
+bool parse404(char** start, LinkedList* settings);
+bool parse301(char** start, LinkedList* settings);
+bool parseCaseSensitivePaths(char** start, LinkedList* settings);
+bool parseBacklog(char** start, LinkedList* settings);
+bool parseDirListings(char** start, LinkedList* settings);
+
+
+bool skipToLF(char** start);
+char* getTextToLF(char* start);
+bool consumeLF(char** start);
+
+
 #endif // PARSER_H_INCLUDED

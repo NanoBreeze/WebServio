@@ -21,4 +21,22 @@
 <div class="container text-center">
 	<h1>Welcome to WebServio!</h1>
 </div>
+
+<div class="container">
+	<h1>Configuration Settings</h1>
+	<p> 
+	Valid configurations: 
+	<ul>
+		<li>Set index page. "Index" SP (name)</li>
+		<li>Set 404 page. "404" SP (name)</li>
+		<li>Set 301 redirects (if a directory without '/' at end, then automatically redirect with a '/' at end. This
+		allows the href to be relative to the directory). ("301" SP (srcName) SP (destName))*</li>
+		<li>Set whether paths are case sensitive or not. "CaseSensitivePaths" SP (true/false)</li>
+		<li>Set max connections in backlog. "Backlog" SP (number)</li>
+		<li>Set whether a request for a directory shows the directory listings or a 404 page. "DirListings" SP (true/false)</li>
+	</ul>
+
+	</p>
+</div>
+
 </html>
