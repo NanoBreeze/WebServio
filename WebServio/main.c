@@ -6,6 +6,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <netdb.h>
 #include <time.h>
 
@@ -223,7 +224,30 @@ int main()
 
         }
 
-    char* response = create411Message();
+    char* response;
+
+    struct stat s;
+    if (stat(requestLine.path, &s) == 0) {
+
+        if (s.st_mode & S_IFDIR) {
+
+            printf("It's a directory\n");
+            response = create200MessageDir(requestLine.path); //should be able to set configuration to return 404 or list of files in the directory
+        }
+        else if (s.st_mode & S_IFREG) {
+            printf("It's a file\n");
+            response = create200Message(requestLine.path); //should be able to return 200 or 301 response
+        }
+        else {
+            printf("Neither!\n");
+            response = create404Message("404.html");
+        }
+    }
+    else {
+        //does not exist
+        response = create404Message("404.html");
+    }
+
     if (!response) { return NULL; }
         if (sendall(acceptedFileDescriptor, response, strlen(response))) {
             printf("All sent!\n");
@@ -233,8 +257,6 @@ int main()
             printf("Error with sending data: %s\n", strerror(errno));
 
         }
-
-
     }
 
     getchar();

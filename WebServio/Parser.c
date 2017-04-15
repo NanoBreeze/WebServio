@@ -75,13 +75,14 @@ bool consumeSP(char** start) {
 }
 
 
-//eg, /index, /hello/heythere
+//eg, /index, /hello/heythere, currently accepting .. and ~, hope user won't be malicious ;P
 bool getPath(char** start, char** path) {
 	if (**start != '/') { return false; }
 
 	char pathBuffer[8000];
 	int posPath = 0;
 
+    (*start)++; //remove the leading '/' so it's easier to find files
 	while (**start != ' ') {
 		pathBuffer[posPath] = **start;
 		(*start)++;
