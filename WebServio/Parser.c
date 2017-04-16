@@ -255,7 +255,6 @@ bool parseSettings(char* start, LinkedList* settings, LinkedList* settings301) {
 
     char* origStart = start;
 
-
     while ((start - origStart) / sizeof(char) < strlen(origStart)) {
 
         while (isspace(*start)) { start++; }

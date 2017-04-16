@@ -31,6 +31,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="Lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Lib.h" />
 		<Unit filename="LinkedList.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -43,6 +47,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Parser.h" />
+		<Unit filename="Settings.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Settings.h" />
 		<Unit filename="Tests/HeaderFieldTests" />
 		<Unit filename="Tests/HeaderFieldTests.c">
 			<Option compilerVar="CC" />

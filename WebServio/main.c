@@ -18,6 +18,8 @@
 
 #include "Parser.h"
 #include "LinkedList.h"
+#include "Settings.h"
+#include "Lib.h"
 
 #define PORT "3002"
 #define BACKLOG 20
@@ -96,12 +98,28 @@ bool sendall(int fileDescriptor, char* buffer, int length) {
 
 int main()
 {
+
+    setIndex("newIndexwer.html");
+
+    set404("new404wer.html");
+
+
+   set301("wow.html", "superamazing.html");
+   set301("wow.html", "superamazing222.html");
+   set301("helloblue.html", "superamazing222.html");
+   set301("wow4.html", "woeifj.html");
+
+   setBacklog(49060);
+   setDirListings(true);
+
+   setCaseSensitivePaths(true);
+
     char* settingsText = getFileText("settings.conf");
 
     LinkedList* settings = createLinkedList();
     LinkedList* settings301 = createLinkedList();
 
-    parseSettings(settingsText, settings, settings301);
+    bool isSuccess = getSettings(settingsText, settings, settings301);
 
     free(settingsText);
 

@@ -11,9 +11,8 @@ char* getCurrentDateTime() {
     timeinfo = gmtime(&rawtime);
 
     char* dateTime = asctime(timeinfo);
-    dateTime[strlen(dateTime) - 1] = 0; //trim the \n
+    dateTime[strlen(dateTime) - 1] = '\0'; //trim the \n
 
-    //return "sodfij";
     return dateTime; //date format isn't correct, right now showing local time only
 }
 
@@ -43,4 +42,15 @@ char* getFileText(char* file) {
         }
 
         return fileText;
+}
+
+bool writeFile(char* fileName, char* text) {
+
+    FILE* file = fopen(fileName, "wb");
+    if (!file) { return false; }
+
+    fprintf(file, "%s", text);
+    fclose(file);
+
+    return true;
 }
