@@ -1,13 +1,10 @@
 #include <string.h>
 
 #include "Settings.h"
-#include "Parser.h"
-#include "Lib.h"
 
 
-bool getSettings(char* start, LinkedList* settings, LinkedList* settings301) { //separate linked list for 301 because contains two entries: src and destination
-
-    return parseSettings(start, settings, settings301);
+char* getSettings() {
+    return getFileText("settings.conf");
 }
 
 
@@ -19,6 +16,7 @@ bool setIndex(char* fileName) {
 bool set404(char* fileName) {
     return setSingleEntrySetting(fileName, "404");
 }
+
 
 //Requires a bit of refactoring, a little difficult to read
 bool set301(char* src, char* dest) {
@@ -76,43 +74,6 @@ bool set301(char* src, char* dest) {
     sprintf(settingsText, "%s301 %s %s\n", settingsText, src, dest);
 
     return writeFile("settings.conf", settingsText);
-
-
-
-    //to ensure this is the 301 setting type and not a file whose name contains 301,
-    //there must be a whitespace before the "301" and a space after it
-
-
-    /**
-
-    int origLineLength = 0;
-    int newLineLength = strlen(settingType) + strlen(" ") + strlen(value) + strlen("\n");
-
-
-    if (ptr) {
-        //basiclaly, delete the line and create a new one at end. This is easier than inserting characters in the middle of the index line
-        char* newLinePtr = strchr(ptr, '\n');
-
-        origLineLength = (newLinePtr - ptr) / sizeof(char) + 1;
-        int newLineLength = strlen(settingType) + strlen(" ") + strlen(value) + strlen("\n");
-
-        shiftCharsToCoverLine(&settingsText, &ptr, &newLinePtr);
-    }
-
-    int diff = newLineLength - origLineLength;
-
-    //currently, this realloc is allocating a bit more memory than needed. Allocating the difference between old and new is a nice optimization
-    settingsText = realloc(settingsText, sizeof(char) * (strlen(settingsText) + diff) + 1); //yes, mind the space
-    if (!settingsText) { return false; }
-
-    sprintf(settingsText, "%s%s %s\n", settingsText, settingType, value);
-
-    return writeFile("settings.conf", settingsText);
-*/
-
-
-
-return true;
 }
 
 
@@ -148,6 +109,7 @@ bool setBacklog(int count) {
 bool setSingleEntrySetting(char* value, char* settingType) { //eg of settingtype, 404, Index, DirListings
 
     char* settingsText = getFileText("settings.conf");
+    if (!settingsText) { return false; }
 
     char* ptr = strstr(settingsText, settingType);
 
@@ -177,8 +139,6 @@ bool setSingleEntrySetting(char* value, char* settingType) { //eg of settingtype
 
 
 void shiftCharsToCoverLine(char** settingsText, char** dest, char** newLinePtr) { //use single * is enough already
-
-//    shiftCharsToCoverLine(&settingsText, &ptr, &newLinePtr);
 
     int remaining = strlen(*settingsText) - (*newLinePtr - *settingsText) / sizeof(char);
 

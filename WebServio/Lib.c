@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <dirent.h>
 
+
 char* getCurrentDateTime() {
     time_t rawtime;
     struct tm* timeinfo;
@@ -15,6 +16,7 @@ char* getCurrentDateTime() {
 
     return dateTime; //date format isn't correct, right now showing local time only
 }
+
 
 char* getFileText(char* file) {
 
@@ -44,6 +46,7 @@ char* getFileText(char* file) {
         return fileText;
 }
 
+
 bool writeFile(char* fileName, char* text) {
 
     FILE* file = fopen(fileName, "wb");
@@ -53,4 +56,10 @@ bool writeFile(char* fileName, char* text) {
     fclose(file);
 
     return true;
+}
+
+
+bool getSettings(char* start, LinkedList* settings, LinkedList* settings301) { //separate linked list for 301 because contains two entries: src and destination
+
+    return parseSettings(start, settings, settings301);
 }

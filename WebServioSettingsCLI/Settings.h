@@ -3,9 +3,8 @@
 
 #include <stdbool.h>
 
-#include "LinkedList.h"
 
-bool getSettings(char* start, LinkedList* settings, LinkedList* settings301); //separate linked list for 301 because contains two entries: src and destination
+char* getSettings(); //separate linked list for 301 because contains two entries: src and destination
 
 bool setIndex(char* fileName);
 bool set404(char* fileName);

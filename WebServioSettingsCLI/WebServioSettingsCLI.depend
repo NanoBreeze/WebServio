@@ -1,0 +1,25 @@
+# depslib dependency file v1.0
+1492460223 source:/home/attacker/Desktop/WebServio/WebServioSettingsCLI/main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<limits.h>
+	<errno.h>
+	"Settings.h"
+
+1492460114 source:/home/attacker/Desktop/WebServio/WebServioSettingsCLI/Settings.c
+	<string.h>
+	"Settings.h"
+
+1492460204 /home/attacker/Desktop/WebServio/WebServioSettingsCLI/Settings.h
+	<stdbool.h>
+
+1492453471 source:/home/attacker/Desktop/WebServio/WebServioSettingsCLI/FileOperations.c
+	"FileOperations.h"
+	<string.h>
+	<stdio.h>
+	<dirent.h>
+
+1492447089 /home/attacker/Desktop/WebServio/WebServioSettingsCLI/FileOperations.h
+	<stdbool.h>
+

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1492384318 source:/home/attacker/Desktop/WebServio/WebServio/main.c
+1492384391 source:/home/attacker/Desktop/WebServio/WebServio/main.c
 	<stdio.h>
 	<stdlib.h>
 	<errno.h>
@@ -76,15 +76,16 @@
 	<stdbool.h>
 	"LinkedList.h"
 
-1492373010 source:/home/attacker/Desktop/WebServio/WebServio/Lib.c
+1492460746 source:/home/attacker/Desktop/WebServio/WebServio/Lib.c
 	"Lib.h"
 	<time.h>
 	<string.h>
 	<stdio.h>
 	<dirent.h>
 
-1492306271 /home/attacker/Desktop/WebServio/WebServio/Lib.h
+1492460755 /home/attacker/Desktop/WebServio/WebServio/Lib.h
 	<stdbool.h>
+	"LinkedList.h"
 
 1492313371 /home/attacker/Desktop/WebServio/WebServio/Settings.h
 	<stdbool.h>
