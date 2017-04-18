@@ -21,7 +21,6 @@
 #include "Lib.h"
 
 #define PORT "3002"
-#define BACKLOG 20
 
 
 int run_all_tests() {
@@ -95,6 +94,54 @@ bool sendall(int fileDescriptor, char* buffer, int length) {
 }
 
 
+bool isEmptyPath(char* path) {
+    return strcmp(path, "") == 0;
+}
+
+bool isDir(char* path) {
+    struct stat s;
+    return stat(path, &s) == 0 && s.st_mode & S_IFDIR;
+}
+
+bool isExistentFile(char* path) {
+    struct stat s;
+    return stat(path, &s) == 0 && s.st_mode & S_IFREG;
+}
+
+//if specified, return specified. Otherwise, return default
+char* getIndexPath(LinkedList* settings) {
+
+    char* index = find(settings, "Index");
+    if (!index) {
+        index = "hello.html";
+    }
+
+    return index;
+}
+
+
+char* get404Path(LinkedList* settings) {
+
+    char* fourOhFour = find(settings, "404");
+    if (!fourOhFour) {
+        fourOhFour = "404.html";
+    }
+
+    return fourOhFour;
+}
+
+
+char* get301Path(LinkedList* settings301, char* source) {
+    return find(settings301, source); //NULL means no file associated
+}
+
+bool isDirListingsTrue(LinkedList* settings) {
+
+    char* trueFalse = find(settings, "DirListings");
+
+    return strcmp(trueFalse, "true") == 0;
+}
+
 int main()
 {
 
@@ -103,7 +150,10 @@ int main()
     LinkedList* settings = createLinkedList();
     LinkedList* settings301 = createLinkedList();
 
-    bool isSuccess = getSettings(settingsText, settings, settings301);
+    if (!getSettings(settingsText, settings, settings301)) {
+        printf("Cannot get settings.\n");
+        return;
+    }
 
     free(settingsText);
 
@@ -130,29 +180,56 @@ int main()
         printf("Error with getaddrinfo: %s\n", gai_strerror(status));
         return;
     }
+
     int fileDescriptor;
     if ((fileDescriptor = socket(result->ai_family, result->ai_socktype, result->ai_protocol)) == -1) {
         printf("Error with fileDescriptor: %s\n", strerror(errno));
         return;
     }
+
     int yes = 1;
     int setSockErrorCode;
     if ((setSockErrorCode = setsockopt(fileDescriptor, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes)) == -1) {
         printf("Error with setting setsockopt to allow reusing port: %s\n", strerror(errno));
         return;
     }
+
     int bindErrorCode;
     if ((bindErrorCode = bind(fileDescriptor, result->ai_addr, result->ai_addrlen)) == -1) {
         printf("%d", fileDescriptor);
         printf("Error with binding: %s\n", strerror(errno));
         return;
     }
+
     int listenErrorCode;
-    if ((listenErrorCode = listen(fileDescriptor, BACKLOG)) == -1) {
+    int backlog;
+
+    char* sBacklog = find(settings, "Backlog");
+
+
+    if (!sBacklog) {
+        backlog = 20;
+    }
+    else {
+        char* end;
+        long int result = strtol(sBacklog, &end, 10);
+
+        if (*end != '\0' || atoi(sBacklog) < 1) {
+            printf("Make sure to specify a positive integer.\n>>> ");
+            return;
+        }
+
+        backlog = atoi(sBacklog);
+    }
+
+
+    if ((listenErrorCode = listen(fileDescriptor, backlog)) == -1) {
         printf("Error with listening: %s\n", strerror(errno));
         return;
     }
     printf("about to wait to accept\n");
+
+    while(1) {
     int acceptedFileDescriptor;
     socklen_t acceptedFileDescriptorLength = sizeof acceptedFileDescriptor;
     struct sockaddr_storage acceptedAddr;
@@ -161,7 +238,11 @@ int main()
         printf("Error with accepting: %s\n", strerror(errno));
         return;
     }
-    printf("%d", acceptedFileDescriptor);
+
+    printf("Got connection. The file descriptor is: %d\n", acceptedFileDescriptor);
+    fflush(stdout);
+
+
 
     int bytesReceived = 0;
     if ( (bytesReceived = recv(acceptedFileDescriptor, buffer, sizeof buffer, 0)) <= 0) {
@@ -177,6 +258,25 @@ int main()
     else {
 
         printf("RECEIVED DATA: \n%s", buffer);
+
+        /*char* testR = create200Message("home.html");
+
+        if (sendall(acceptedFileDescriptor, testR, strlen(testR))) {
+            printf("All sent!\n");
+            free(testR);
+            close(acceptedFileDescriptor); //not sure why without this, doesn't send. Wierd????? Wierd!
+        }
+        else {
+            printf("Error with sending data: %s\n", strerror(errno));
+        }
+*/
+
+
+
+
+
+
+
         printf("==================================");
 
         RequestLine requestLine;
@@ -208,7 +308,7 @@ int main()
         }
 
         char* message = NULL;
-        if (buffer[requestLineLength + headerLength] != '\0' ) { //message exists
+      /*  if (buffer[requestLineLength + headerLength] != '\0' ) { //message exists. I don't know why but sometimes Firefox seems to be repeating strange things in its message????
             char* c_contentLength = find(headerFields, "content-length");
 
             if (!c_contentLength) {
@@ -216,12 +316,13 @@ int main()
                 return;
             }
 
+
             int i_contentLength = atoi(c_contentLength);
 
             message = (char*) malloc(i_contentLength + 1);
             extractMessage(buffer + requestLineLength + headerLength, i_contentLength, message);
         }
-
+*/
 
 
         printf("================== PARSED DATA =====================\n\n");
@@ -244,36 +345,51 @@ int main()
         if (message) {
             printf("Message\n");
             printf("%s", message);
-
         }
 
-    char* response;
+        char* response;
 
-    struct stat s;
-    if (stat(requestLine.path, &s) == 0) {
 
-        if (s.st_mode & S_IFDIR) {
+        //we check if path has 301 because if so, redirect regardless of whether the path actually exists or not
+        if (get301Path(settings301, requestLine.path)) {
+            char* host = find(headerFields, "host");
 
-            printf("It's a directory\n");
-            response = create200MessageDir(requestLine.path); //should be able to set configuration to return 404 or list of files in the directory
+            char* fullHost = malloc(strlen("http://") + strlen(host) + 1);
+            strcpy(fullHost, "http://");
+            strcat(fullHost, host);
+
+            char* newPath = get301Path(settings301, requestLine.path);
+            response = create301Message(fullHost, newPath);
+            free(fullHost);
         }
-        else if (s.st_mode & S_IFREG) {
-            printf("It's a file\n");
-            response = create200Message(requestLine.path); //should be able to return 200 or 301 response
+        //send index file if empty path
+        else if (isEmptyPath(requestLine.path)) {
+            char* index = getIndexPath(settings);
+            response = create200Message(index);
+        }
+        else if (isDir(requestLine.path)) {
+
+            if (isDirListingsTrue(settings)) {
+                response = create200MessageDir(requestLine.path);;
+            }
+            else {
+                char* fourOhFour = get404Path(settings);
+                response = create404Message(fourOhFour);
+            }
+        }
+        else if (isExistentFile(requestLine.path)) {
+            response = create200Message(requestLine.path);
         }
         else {
-            printf("Neither!\n");
-            response = create404Message("404.html");
+            char* fourOhFour = get404Path(settings);
+            response = create404Message(fourOhFour);
         }
-    }
-    else {
-        //does not exist
-        response = create404Message("404.html");
-    }
 
-    if (!response) { return NULL; }
+
+        if (!response) { return NULL; }
         if (sendall(acceptedFileDescriptor, response, strlen(response))) {
             printf("All sent!\n");
+            free(response);
             close(acceptedFileDescriptor); //not sure why without this, doesn't send. Wierd????? Wierd!
         }
         else {
@@ -282,6 +398,7 @@ int main()
         }
     }
 
+}
     getchar();
 
     return 0;

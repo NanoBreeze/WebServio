@@ -90,7 +90,9 @@ bool getPath(char** start, char** path) {
 	}
 
 	pathBuffer[posPath] = '\0';
-	*path = pathBuffer; //TODO: are we giving all 8000 bytes?
+	*path = (char*) malloc(posPath + 1); //remember to free this
+
+    strcpy(*path, pathBuffer);
 
 	return true;
 }
@@ -385,7 +387,7 @@ char* getTextToLF(char* start) {
 
 bool consumeLF(char** start) {
 	if (**start == '\n') {
-		*start++;
+		(*start)++;
 		return true;
 	}
 

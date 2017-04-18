@@ -22,14 +22,31 @@ char* create200Message(char* file) {
 
 }
 
-char* create301Message(char* file) {
+char* create301Message(char* host, char* path) {
 
-    char* statusLine = "HTTP/1.1 301 Moved Permanently\r\n";
 
-    char* response = createMessageWithBodyFromFile(file, statusLine);
-    if (!response) { return NULL; }
+    char* dateTime = getCurrentDateTime();
+    char* prefix = "HTTP/1.1 301 Moved Permanently\r\n"
+        "Server: WebServio\r\n";
 
-    return response;
+    char* suffix = "\r\n\r\n";
+
+
+    char* message = (char*) malloc(strlen(prefix) + strlen("Date: ") + strlen(dateTime)
+        + strlen("\r\n") + strlen("Location: ") + strlen(host) + strlen("/") + strlen(path) + strlen(suffix) + 1);
+    if (!message) { return NULL; }
+
+    strcpy(message, prefix);
+    strcat(message, "Date: ");
+    strcat(message, dateTime);
+    strcat(message, "\r\n");
+    strcat(message, "Location: ");
+    strcat(message, host);
+    strcat(message, "/");
+    strcat(message, path);
+    strcat(message, suffix);
+
+    return message;
 }
 
 

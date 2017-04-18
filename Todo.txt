@@ -8,3 +8,5 @@ Must close connection right after sending for client to actual receive message??
 Check path to make sure not to set limit on top-most level.
 Buffer overflows!!!!! in the parsing, eg, skipToLF
 Currently only allows one redirect. In future, redirect to a redirect should be possible.
+CaseSensitivityPaths currently not implemented. May need to individually parse path.
+Allow sending content types other than text/html

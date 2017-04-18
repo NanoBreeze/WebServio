@@ -47,10 +47,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Parser.h" />
-		<Unit filename="Settings.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Settings.h" />
 		<Unit filename="Tests/HeaderFieldTests" />
 		<Unit filename="Tests/HeaderFieldTests.c">
 			<Option compilerVar="CC" />

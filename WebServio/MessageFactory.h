@@ -6,7 +6,7 @@
 #include "LinkedList.h"
 
 char* create200Message(char* file);
-char* create301Message(char* file);
+char* create301Message(char* host, char* path);
 char* create404Message(char* file);
 char* create400Message();
 char* create411Message();
