@@ -1,10 +1,11 @@
 # depslib dependency file v1.0
-1492550066 source:/home/attacker/Desktop/WebServio/WebServio/main.c
+1492633390 source:/home/attacker/Desktop/WebServio/WebServio/main.c
 	<stdio.h>
 	<stdlib.h>
 	<errno.h>
 	<string.h>
 	<stdbool.h>
+	<pthread.h>
 	<sys/types.h>
 	<sys/socket.h>
 	<sys/stat.h>
@@ -17,12 +18,13 @@
 	"Parser.h"
 	"LinkedList.h"
 	"Lib.h"
+	"Connection.h"
 
-1492295179 /home/attacker/Desktop/WebServio/WebServio/Parser.h
+1492626092 /home/attacker/Desktop/WebServio/WebServio/Parser.h
 	<stdbool.h>
 	"LinkedList.h"
 
-1492480448 source:/home/attacker/Desktop/WebServio/WebServio/Parser.c
+1492626062 source:/home/attacker/Desktop/WebServio/WebServio/Parser.c
 	"Parser.h"
 	"LinkedList.h"
 	<string.h>
@@ -31,7 +33,7 @@
 
 1491267391 /home/attacker/Desktop/WebServio/WebServio/Tests/RequestLineTests.h
 
-1491267455 source:/home/attacker/Desktop/WebServio/WebServio/Tests/RequestLineTests.c
+1492627479 source:/home/attacker/Desktop/WebServio/WebServio/Tests/RequestLineTests.c
 	<stdio.h>
 	"minunit.h"
 	"../Parser.h"
@@ -75,14 +77,15 @@
 	<stdbool.h>
 	"LinkedList.h"
 
-1492460746 source:/home/attacker/Desktop/WebServio/WebServio/Lib.c
+1492632292 source:/home/attacker/Desktop/WebServio/WebServio/Lib.c
 	"Lib.h"
 	<time.h>
 	<string.h>
 	<stdio.h>
 	<dirent.h>
+	<sys/stat.h>
 
-1492460755 /home/attacker/Desktop/WebServio/WebServio/Lib.h
+1492632292 /home/attacker/Desktop/WebServio/WebServio/Lib.h
 	<stdbool.h>
 	"LinkedList.h"
 
@@ -95,4 +98,16 @@
 	"Settings.h"
 	"Parser.h"
 	"Lib.h"
+
+1492634276 source:/home/attacker/Desktop/WebServio/WebServio/Connection.c
+	"Connection.h"
+	"LinkedList.h"
+	"Parser.h"
+	"Lib.h"
+	"MessageFactory.h"
+	<stdbool.h>
+	<errno.h>
+	<pthread.h>
+
+1492632391 /home/attacker/Desktop/WebServio/WebServio/Connection.h
 

@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <sys/stat.h>
+
 
 
 char* getCurrentDateTime() {
@@ -63,3 +65,52 @@ bool getSettings(char* start, LinkedList* settings, LinkedList* settings301) { /
 
     return parseSettings(start, settings, settings301);
 }
+
+bool isEmptyPath(char* path) {
+    return strcmp(path, "") == 0;
+}
+
+bool isDir(char* path) {
+    struct stat s;
+    return stat(path, &s) == 0 && s.st_mode & S_IFDIR;
+}
+
+bool isExistentFile(char* path) {
+    struct stat s;
+    return stat(path, &s) == 0 && s.st_mode & S_IFREG;
+}
+
+
+
+//if specified, return specified. Otherwise, return default
+char* getIndexPath(LinkedList* settings) {
+
+    char* index = find(settings, "Index");
+    if (!index) {
+        index = "hello.html";
+    }
+
+    return index;
+}
+
+char* get404Path(LinkedList* settings) {
+
+    char* fourOhFour = find(settings, "404");
+    if (!fourOhFour) {
+        fourOhFour = "404.html";
+    }
+
+    return fourOhFour;
+}
+
+char* get301Path(LinkedList* settings301, char* source) {
+    return find(settings301, source); //NULL means no file associated
+}
+
+bool isDirListingsTrue(LinkedList* settings) {
+
+    char* trueFalse = find(settings, "DirListings");
+
+    return strcmp(trueFalse, "true") == 0;
+}
+

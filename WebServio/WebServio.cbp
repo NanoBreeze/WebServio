@@ -31,6 +31,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="Connection.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Connection.h" />
 		<Unit filename="Lib.c">
 			<Option compilerVar="CC" />
 		</Unit>

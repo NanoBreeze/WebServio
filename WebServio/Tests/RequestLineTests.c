@@ -9,8 +9,8 @@ static char * test_leading_whitespace() {
     char a[] = "    GET /index/name HTTP/1.1\r\n";
 
     RequestLine requestLine;
-
-     mu_assert("Error: test_leading_whitespace", true == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_leading_whitespace", true == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -19,7 +19,8 @@ static char * test_GET_method() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_GET_Method", true == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_GET_Method", true == parseRequestLine(a, &requestLine, &length));
      return 0;
  }
 
@@ -28,7 +29,8 @@ static char * test_POST_method() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_POST_Method", true == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_POST_Method", true == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -37,7 +39,8 @@ static char * test_HEAD_method() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_HEAD_Method", true == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_HEAD_Method", true == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -46,7 +49,8 @@ static char * test_unsupported_method() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_unsupported_method", false == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_unsupported_method", false == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -56,7 +60,8 @@ static char * test_excessive_whitespace_between_method_and_path() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_excessive_whitespace_between_method_and_path", false == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_excessive_whitespace_between_method_and_path", false == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -66,7 +71,8 @@ static char * test_correct_path() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_correct_path", true == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_correct_path", true == parseRequestLine(a, &requestLine, &length));
      return 0;
  }
 
@@ -76,7 +82,8 @@ static char * test_path_encoding_accepts_ASCII_only() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_path_encoding_accepts_ASCII_only", false == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_path_encoding_accepts_ASCII_only", false == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -86,7 +93,8 @@ static char * test_path_without_leading_slash() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_path_without_leading_slash", false == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_path_without_leading_slash", false == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -96,7 +104,8 @@ static char * test_excessive_whitespace_between_path_and_version() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_excessive_whitespace_between_path_and_version", false == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_excessive_whitespace_between_path_and_version", false == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -106,7 +115,8 @@ static char * test_version_without_HTTP() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_version_without_HTTP", false == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_version_without_HTTP", false == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -117,7 +127,8 @@ static char * test_version_with_letter_major() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_version_with_letter_major", false == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_version_with_letter_major", false == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -127,7 +138,8 @@ static char * test_early_CRLF() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_early_CRLF", false == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_early_CRLF", false == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -137,7 +149,8 @@ static char * test_missing_CRLF_at_end() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_missing_CRLF_at_end", false == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_missing_CRLF_at_end", false == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 
@@ -147,7 +160,8 @@ static char * test_correct_CRLF() {
 
     RequestLine requestLine;
 
-     mu_assert("Error: test_missing_CRLF_at_end", true == parseRequestLine(a, &requestLine));
+    int length = 0;
+     mu_assert("Error: test_missing_CRLF_at_end", true == parseRequestLine(a, &requestLine, &length));
      return 0;
 }
 

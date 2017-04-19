@@ -9,7 +9,7 @@ For robustness, let all the CRLF go if they appear before the request line. Here
 Request line begins with a method (eg, GET), then a single space, then the path, then another single space, then the protocol version, and ends with CRLF
 */
 
-int parseRequestLine(char* start, RequestLine* requestLine) {
+bool parseRequestLine(char* start, RequestLine* requestLine, int* requestLineLength) {
 
     char* orig_start = start; //includes CRLF
 
@@ -17,19 +17,20 @@ int parseRequestLine(char* start, RequestLine* requestLine) {
 
 //hmmmm, this is an interesting style, using returns, will check if there are better alternatives for readability though.
 
-	if (!getMethod(&start, &(requestLine->method))) { return -1; }
+	if (!getMethod(&start, &(requestLine->method))) { return false; }
 
-	if (!consumeSP(&start)) { return -1; }
+	if (!consumeSP(&start)) { return false; }
 
-	if (!getPath(&start, &(requestLine->path))) { return -1; }
+	if (!getPath(&start, &(requestLine->path))) { return false; }
 
-	if (!consumeSP(&start)) { return -1; }
+	if (!consumeSP(&start)) { return false; }
 
-	if (!getProtocolVersion(&start, &(requestLine->major), &(requestLine->minor))) { return -1; } //is this passing by value? Need to pass by ref
+	if (!getProtocolVersion(&start, &(requestLine->major), &(requestLine->minor))) { return false; } //is this passing by value? Need to pass by ref
 
-	if (!consumeCRLF(&start)) { return -1; }
+	if (!consumeCRLF(&start)) { return false; }
 
-	return (start-orig_start) / sizeof(char);
+	*requestLineLength = (start-orig_start) / sizeof(char);
+	return true;
 }
 
 //methods are case sensitive
@@ -130,7 +131,7 @@ bool consumeCRLF(char** start) {
 
 ////////////////////////////// PARSING headerField
 
-int parseHeader(char* start, LinkedList* headerFields) {
+bool parseHeader(char* start, LinkedList* headerFields, int* headerLength) {
 
     char* orig_start = start;
 
@@ -154,15 +155,16 @@ int parseHeader(char* start, LinkedList* headerFields) {
             append(headerFields, lowerHeaderFieldName, headerField.value);
         }
         else {
-            return -1;
+            return false;
         }
     }
 
     if (consumeCRLF(&start)) {
-        return (start - orig_start) / sizeof(char);
+        *headerLength = (start - orig_start) / sizeof(char);
+        return true;
     }
 
-    return -1;
+    return false;
 }
 
 
@@ -246,9 +248,8 @@ bool parseValue(char** start, char* value) {
 
 
 
-void extractMessage(char* start, int length, char* message) {
+void copyMessage(char* start, int length, char* message) {
     strncpy(message, start, length);
-    int a = 34;
 }
 
 ////////////////////// CONFIGURATION SETTINGS

@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdbool.h>
+#include <pthread.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -19,6 +20,7 @@
 #include "Parser.h"
 #include "LinkedList.h"
 #include "Lib.h"
+#include "Connection.h"
 
 #define PORT "3002"
 
@@ -69,82 +71,11 @@ int run_all_tests() {
  }
 
 
-char buffer[10000];
-
-
-bool sendall(int fileDescriptor, char* buffer, int length) {
-
-    int totalBytesSent = 0;
-    int bytesRemaining = length;
-
-    while (totalBytesSent < length) {
-        int bytesSent = 0;
-
-        if (( bytesSent = send(fileDescriptor, buffer + totalBytesSent, bytesRemaining, 0)) == -1) {
-            break;
-        }
-        else {
-            totalBytesSent += bytesSent;
-            bytesRemaining -= bytesSent;
-
-        }
-    }
-
-    return totalBytesSent == length;
-}
-
-
-bool isEmptyPath(char* path) {
-    return strcmp(path, "") == 0;
-}
-
-bool isDir(char* path) {
-    struct stat s;
-    return stat(path, &s) == 0 && s.st_mode & S_IFDIR;
-}
-
-bool isExistentFile(char* path) {
-    struct stat s;
-    return stat(path, &s) == 0 && s.st_mode & S_IFREG;
-}
-
-//if specified, return specified. Otherwise, return default
-char* getIndexPath(LinkedList* settings) {
-
-    char* index = find(settings, "Index");
-    if (!index) {
-        index = "hello.html";
-    }
-
-    return index;
-}
-
-
-char* get404Path(LinkedList* settings) {
-
-    char* fourOhFour = find(settings, "404");
-    if (!fourOhFour) {
-        fourOhFour = "404.html";
-    }
-
-    return fourOhFour;
-}
-
-
-char* get301Path(LinkedList* settings301, char* source) {
-    return find(settings301, source); //NULL means no file associated
-}
-
-bool isDirListingsTrue(LinkedList* settings) {
-
-    char* trueFalse = find(settings, "DirListings");
-
-    return strcmp(trueFalse, "true") == 0;
-}
 
 int main()
 {
 
+    int threadCountTotal = 0;
     char* settingsText = getFileText("../WebServioSettingsCLI/settings.conf");
 
     LinkedList* settings = createLinkedList();
@@ -166,8 +97,6 @@ int main()
         printf("there are duplicate 301 settings\n");
         return;
     }
-
-
 
     struct addrinfo hints;
     struct addrinfo *result;
@@ -229,177 +158,38 @@ int main()
     }
     printf("about to wait to accept\n");
 
-    while(1) {
+
     int acceptedFileDescriptor;
     socklen_t acceptedFileDescriptorLength = sizeof acceptedFileDescriptor;
     struct sockaddr_storage acceptedAddr;
 
-    if ((acceptedFileDescriptor = accept(fileDescriptor, (struct sockaddr*) &acceptedAddr, &acceptedFileDescriptorLength)) == -1) {
-        printf("Error with accepting: %s\n", strerror(errno));
-        return;
+    while (1) {
+        //opens a connection
+        if ((acceptedFileDescriptor = accept(fileDescriptor, (struct sockaddr*) &acceptedAddr, &acceptedFileDescriptorLength)) == -1) {
+            printf("Error with accepting: %s\n", strerror(errno));
+            return;
+        }
+
+        printf("\n\n\nGot connection. The file descriptor is: %d\n", acceptedFileDescriptor);
+
+        Params params;
+        params.acceptedFileDescriptor = acceptedFileDescriptor;
+        params.settings = settings;
+        params.settings301 = settings301;
+
+        pthread_t thread;
+
+        int ret = pthread_create(&thread, NULL, startConnection, (void*) &params);
+        if (ret) {
+            printf("Error in creating the thread: %d\n", ret);
+        }
+        pthread_detach(thread);
+        threadCountTotal++;
+        printf("New thread created. threadCountTotal is: %d\n", threadCountTotal);
+        //startConnection(acceptedFileDescriptor, settings, settings301);
     }
 
-    printf("Got connection. The file descriptor is: %d\n", acceptedFileDescriptor);
-    fflush(stdout);
 
-
-
-    int bytesReceived = 0;
-    if ( (bytesReceived = recv(acceptedFileDescriptor, buffer, sizeof buffer, 0)) <= 0) {
-        //connection closed
-        if (bytesReceived == 0) {
-            printf("Client closed connection");
-        }
-        else {
-            printf("Error with receiving information: %s\n", strerror(errno));
-        }
-        close(acceptedFileDescriptor);
-    }
-    else {
-
-        printf("RECEIVED DATA: \n%s", buffer);
-
-        /*char* testR = create200Message("home.html");
-
-        if (sendall(acceptedFileDescriptor, testR, strlen(testR))) {
-            printf("All sent!\n");
-            free(testR);
-            close(acceptedFileDescriptor); //not sure why without this, doesn't send. Wierd????? Wierd!
-        }
-        else {
-            printf("Error with sending data: %s\n", strerror(errno));
-        }
-*/
-
-
-
-
-
-
-
-        printf("==================================");
-
-        RequestLine requestLine;
-        int requestLineLength = 0;
-        if ((requestLineLength = parseRequestLine(buffer, &requestLine)) == -1) {
-            printf("Error in the request line\n");
-            return;
-        }
-
-        LinkedList* headerFields = createLinkedList();
-        int headerLength = 0;
-
-        if ((headerLength = parseHeader(buffer + requestLineLength, headerFields)) == -1) {
-            printf("Error in the headers\n");
-            return;
-        }
-
-        //error checking on the header fields
-        if (containsDuplicate(headerFields)) {
-            printf("Error: header fields must not contain duplicates");
-            return;
-        }
-
-        //host must exist
-        char* host = find(headerFields, "host");;
-        if (!host) {
-            printf("Error: There must be a host header field present.\n");
-            return;
-        }
-
-        char* message = NULL;
-      /*  if (buffer[requestLineLength + headerLength] != '\0' ) { //message exists. I don't know why but sometimes Firefox seems to be repeating strange things in its message????
-            char* c_contentLength = find(headerFields, "content-length");
-
-            if (!c_contentLength) {
-                printf("Error, if message exists, must contain content length header. Error 411");
-                return;
-            }
-
-
-            int i_contentLength = atoi(c_contentLength);
-
-            message = (char*) malloc(i_contentLength + 1);
-            extractMessage(buffer + requestLineLength + headerLength, i_contentLength, message);
-        }
-*/
-
-
-        printf("================== PARSED DATA =====================\n\n");
-
-        printf("Request line\n");
-        printf("\tMethod: %d. 0: GET, 1: POST, 2: HEAD\n", requestLine.method);
-        printf("\tPath: %s\n", requestLine.path);
-        printf("\tMajor: %d\n", requestLine.major);
-        printf("\tMinor: %d\n", requestLine.minor);
-
-
-        printf("Headers\n");
-        Node* current = headerFields->head;
-
-        while (current) {
-            printf("\t%s: %s\n", current->key, current->value);
-            current = current->next;
-        }
-
-        if (message) {
-            printf("Message\n");
-            printf("%s", message);
-        }
-
-        char* response;
-
-
-        //we check if path has 301 because if so, redirect regardless of whether the path actually exists or not
-        if (get301Path(settings301, requestLine.path)) {
-            char* host = find(headerFields, "host");
-
-            char* fullHost = malloc(strlen("http://") + strlen(host) + 1);
-            strcpy(fullHost, "http://");
-            strcat(fullHost, host);
-
-            char* newPath = get301Path(settings301, requestLine.path);
-            response = create301Message(fullHost, newPath);
-            free(fullHost);
-        }
-        //send index file if empty path
-        else if (isEmptyPath(requestLine.path)) {
-            char* index = getIndexPath(settings);
-            response = create200Message(index);
-        }
-        else if (isDir(requestLine.path)) {
-
-            if (isDirListingsTrue(settings)) {
-                response = create200MessageDir(requestLine.path);;
-            }
-            else {
-                char* fourOhFour = get404Path(settings);
-                response = create404Message(fourOhFour);
-            }
-        }
-        else if (isExistentFile(requestLine.path)) {
-            response = create200Message(requestLine.path);
-        }
-        else {
-            char* fourOhFour = get404Path(settings);
-            response = create404Message(fourOhFour);
-        }
-
-
-        if (!response) { return NULL; }
-        if (sendall(acceptedFileDescriptor, response, strlen(response))) {
-            printf("All sent!\n");
-            free(response);
-            close(acceptedFileDescriptor); //not sure why without this, doesn't send. Wierd????? Wierd!
-        }
-        else {
-            printf("Error with sending data: %s\n", strerror(errno));
-
-        }
-    }
-
-}
-    getchar();
 
     return 0;
 }

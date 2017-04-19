@@ -13,7 +13,6 @@ typedef struct requestLine {
 	char* path;
 	int major;
 	int minor;
-	//int length;
 } RequestLine;
 
 typedef struct headerField {
@@ -21,20 +20,20 @@ typedef struct headerField {
     char value[200];
 } HeaderField;
 
-int parseRequestLine(char* start, RequestLine* requestLine);
+bool parseRequestLine(char* start, RequestLine* requestLine, int* requestLineLength);
 bool getMethod(char** start, METHOD* method);
 bool consumeSP(char** start);
 bool getPath(char** start, char** path);
 bool getProtocolVersion(char** start, int* major, int* minor);
 bool consumeCRLF(char** start);
 
-int parseHeader(char* start, LinkedList* headerFields);
+bool parseHeader(char* start, LinkedList* headerFields, int* headerLength);
 bool parseHeaderField(char** start, HeaderField* headerField);
 bool parseName(char** start, char* name);
 bool consumeColon(char** start);
 bool parseValue(char** start, char* value);
 
-void extractMessage(char* start, int length, char* message);
+void copyMessage(char* start, int length, char* message);
 
 
 bool parseSettings(char* start, LinkedList* settings, LinkedList* settings301); //separate linked list for 301 because contains two entries: src and destination
