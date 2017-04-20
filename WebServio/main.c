@@ -24,7 +24,7 @@
 
 #define PORT "3002"
 
-
+/*
 int run_all_tests() {
     tests_run = 0;
 
@@ -69,13 +69,12 @@ int run_all_tests() {
      return 0;
 
  }
+*/
 
 
 
 int main()
 {
-
-    int threadCountTotal = 0;
     char* settingsText = getFileText("../WebServioSettingsCLI/settings.conf");
 
     LinkedList* settings = createLinkedList();
@@ -163,7 +162,18 @@ int main()
     socklen_t acceptedFileDescriptorLength = sizeof acceptedFileDescriptor;
     struct sockaddr_storage acceptedAddr;
 
-    while (1) {
+
+    for(;;) {
+        pthread_mutex_lock(&lock);
+
+        while (threadsFree == 0) { //use while in case of spurious wakeups
+            pthread_cond_wait(&cond, &lock);
+        }
+
+        threadsFree--;
+        printf("Condition met. Current threads free: %d", threadsFree);
+        pthread_mutex_unlock(&lock);
+
         //opens a connection
         if ((acceptedFileDescriptor = accept(fileDescriptor, (struct sockaddr*) &acceptedAddr, &acceptedFileDescriptorLength)) == -1) {
             printf("Error with accepting: %s\n", strerror(errno));
@@ -183,13 +193,9 @@ int main()
         if (ret) {
             printf("Error in creating the thread: %d\n", ret);
         }
+
         pthread_detach(thread);
-        threadCountTotal++;
-        printf("New thread created. threadCountTotal is: %d\n", threadCountTotal);
-        //startConnection(acceptedFileDescriptor, settings, settings301);
     }
-
-
 
     return 0;
 }

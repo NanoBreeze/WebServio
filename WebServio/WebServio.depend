@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1492633390 source:/home/attacker/Desktop/WebServio/WebServio/main.c
+1492713730 source:/home/attacker/Desktop/WebServio/WebServio/main.c
 	<stdio.h>
 	<stdlib.h>
 	<errno.h>
@@ -99,7 +99,7 @@
 	"Parser.h"
 	"Lib.h"
 
-1492634276 source:/home/attacker/Desktop/WebServio/WebServio/Connection.c
+1492713718 source:/home/attacker/Desktop/WebServio/WebServio/Connection.c
 	"Connection.h"
 	"LinkedList.h"
 	"Parser.h"
@@ -109,5 +109,6 @@
 	<errno.h>
 	<pthread.h>
 
-1492632391 /home/attacker/Desktop/WebServio/WebServio/Connection.h
+1492712991 /home/attacker/Desktop/WebServio/WebServio/Connection.h
+	<pthread.h>
 

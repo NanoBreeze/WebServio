@@ -10,6 +10,13 @@
 #include <pthread.h>
 
 
+
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
+threadsFree = 2;
+
+
 bool validateHeaders(LinkedList* headerFields) {
     if (containsDuplicate(headerFields)) {
         printf("Error: header fields must not contain duplicates");
@@ -148,7 +155,17 @@ void send400Message(int acceptedFileDescriptor) {
     free(response);
 }
 
+void terminateConnection(int acceptedFileDescriptor) {
 
+    close(acceptedFileDescriptor);
+    pthread_mutex_lock(&lock);
+
+    threadsFree++;
+    printf("About to signal condition. Incremented threadsFree already to: %d\n", threadsFree);
+    pthread_cond_signal(&cond);
+
+    pthread_mutex_unlock(&lock);
+}
 
 
 
@@ -180,7 +197,9 @@ void* startConnection(void* p) {
                 printf("Error with receiving information: %s.\n", strerror(errno));
                 fflush(stdout);
             }
-            close(acceptedFileDescriptor);
+
+
+            terminateConnection(acceptedFileDescriptor);
 
             printf("Connection closed. Exiting. Current thread id: %d.\n", pthread_self());
             fflush(stdout);
@@ -198,6 +217,7 @@ void* startConnection(void* p) {
                 printf("Error in the request line.\n");
 
                 send400Message(acceptedFileDescriptor);
+                terminateConnection(acceptedFileDescriptor);
                 return;
             }
 
@@ -208,6 +228,7 @@ void* startConnection(void* p) {
                 printf("Error in the headers\n");
 
                 send400Message(acceptedFileDescriptor);
+                terminateConnection(acceptedFileDescriptor);
                 return;
             }
 
@@ -215,6 +236,7 @@ void* startConnection(void* p) {
                 printf("Error in the headers\n");
 
                 send400Message(acceptedFileDescriptor);
+                terminateConnection(acceptedFileDescriptor);
                 return;
             }
 
@@ -247,7 +269,7 @@ void* startConnection(void* p) {
             char* response = createResponse(requestLine.path, headerFields, settings, settings301);
 
             if (!response) {
-                close(acceptedFileDescriptor);
+                terminateConnection(acceptedFileDescriptor);
                 return;
             }
 
