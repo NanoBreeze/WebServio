@@ -158,13 +158,14 @@ void send400Message(int acceptedFileDescriptor) {
 void terminateConnection(int acceptedFileDescriptor) {
 
     close(acceptedFileDescriptor);
-    pthread_mutex_lock(&lock);
+    /*pthread_mutex_lock(&lock);
 
     threadsFree++;
     printf("About to signal condition. Incremented threadsFree already to: %d\n", threadsFree);
     pthread_cond_signal(&cond);
 
     pthread_mutex_unlock(&lock);
+    */
 }
 
 
@@ -283,3 +284,5 @@ void* startConnection(void* p) {
         }
     }
 }
+
+

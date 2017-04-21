@@ -34,13 +34,14 @@ bool parseRequestLine(char* start, RequestLine* requestLine, int* requestLineLen
 }
 
 //methods are case sensitive
-bool getMethod(char** start, METHOD* method) {
+bool getMethod(char** start, METHOD* method) { //segmentation fault if the original start is simply \r\n because then start is \0
 
 	int MAX_METHOD_LENGTH = 7; //CONNECT
 	char met[MAX_METHOD_LENGTH + 1];
 	int posMet = 0;
 
 	while (**start != ' ') {
+
 		met[posMet] = **start;
 		(*start)++;
 		posMet++;
