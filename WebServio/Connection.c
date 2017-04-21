@@ -4,6 +4,8 @@
 #include "Parser.h"
 #include "Lib.h"
 #include "MessageFactory.h"
+#include "Common.h"
+
 
 #include <stdbool.h>
 #include <errno.h>
@@ -14,7 +16,7 @@
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
-threadsFree = 2;
+threadsFree = MAX_THREAD_COUNT;
 
 
 bool validateHeaders(LinkedList* headerFields) {
@@ -157,15 +159,18 @@ void send400Message(int acceptedFileDescriptor) {
 
 void terminateConnection(int acceptedFileDescriptor) {
 
+
     close(acceptedFileDescriptor);
-    /*pthread_mutex_lock(&lock);
+
+    #ifdef MULTITHREADED
+    pthread_mutex_lock(&lock);
 
     threadsFree++;
     printf("About to signal condition. Incremented threadsFree already to: %d\n", threadsFree);
     pthread_cond_signal(&cond);
 
     pthread_mutex_unlock(&lock);
-    */
+    #endif // MULTIPLEX_IO
 }
 
 
@@ -177,112 +182,112 @@ void* startConnection(void* p) {
 
     Params* params = (Params*) p;
 
+    while (1) {
+        char buffer[10000];
+
+        int bytesReceived = 0;
+        if ( (bytesReceived = recv(params->acceptedFileDescriptor, buffer, sizeof buffer, 0)) <= 0) {
+
+            analyzeReadError(params->acceptedFileDescriptor, bytesReceived);
+            return;
+        }
+        else {
+            processRequest(buffer, params);
+        }
+    }
+}
+
+void analyzeReadError(int acceptedFileDescriptor, int bytesReceived) {
+
+    if (bytesReceived == 0) {
+        printf("Client closed connection. Current thread id: %d.\n", pthread_self());
+    }
+    else {
+        printf("Error with receiving information\n");
+    }
+
+    terminateConnection(acceptedFileDescriptor);
+}
+
+void processRequest(char* buffer, Params* params) {
+
     int acceptedFileDescriptor = params->acceptedFileDescriptor;
     LinkedList* settings = params->settings;
     LinkedList* settings301 = params->settings301;
 
 
+    printf("\nRECEIVED DATA. Current thread id: %d\n%s", pthread_self(), buffer);
 
-    while (1) {
-        char buffer[10000];
+    printf("==================================");
 
+    RequestLine requestLine;
+    int requestLineLength = 0;
+    if (!parseRequestLine(buffer, &requestLine, &requestLineLength)) {
+        printf("Error in the request line.\n");
 
-        int bytesReceived = 0;
-        if ( (bytesReceived = recv(acceptedFileDescriptor, buffer, sizeof buffer, 0)) <= 0) {
-            //connection closed
-            if (bytesReceived == 0) {
-                printf("Client closed connection. Current thread id: %d.\n", pthread_self());
-                fflush(stdout);
-            }
-            else {
-                printf("Error with receiving information: %s.\n", strerror(errno));
-                fflush(stdout);
-            }
+        send400Message(acceptedFileDescriptor);
+        terminateConnection(acceptedFileDescriptor);
+        return;
+    }
 
 
-            terminateConnection(acceptedFileDescriptor);
+    LinkedList* headerFields = createLinkedList();
+    int headerLength = 0;
+    if (!parseHeader(buffer + requestLineLength, headerFields, &headerLength)) {
+        printf("Error in the headers\n");
 
-            printf("Connection closed. Exiting. Current thread id: %d.\n", pthread_self());
-            fflush(stdout);
-            return;
-        }
-        else {
+        send400Message(acceptedFileDescriptor);
+        terminateConnection(acceptedFileDescriptor);
+        return;
+    }
 
-            printf("\nRECEIVED DATA. Current thread id: %d\n%s", pthread_self(), buffer);
+    if (!validateHeaders(headerFields)) {
+        printf("Error in the headers\n");
 
-            printf("==================================");
-
-            RequestLine requestLine;
-            int requestLineLength = 0;
-            if (!parseRequestLine(buffer, &requestLine, &requestLineLength)) {
-                printf("Error in the request line.\n");
-
-                send400Message(acceptedFileDescriptor);
-                terminateConnection(acceptedFileDescriptor);
-                return;
-            }
+        send400Message(acceptedFileDescriptor);
+        terminateConnection(acceptedFileDescriptor);
+        return;
+    }
 
 
-            LinkedList* headerFields = createLinkedList();
-            int headerLength = 0;
-            if (!parseHeader(buffer + requestLineLength, headerFields, &headerLength)) {
-                printf("Error in the headers\n");
+    char* message = NULL;
 
-                send400Message(acceptedFileDescriptor);
-                terminateConnection(acceptedFileDescriptor);
-                return;
-            }
+    /*
+    if (buffer[requestLineLength + headerLength] != '\0' ) { //message exists. I don't know why but sometimes Firefox seems to be repeating headers in the message section but doesn't contain a content-length????
 
-            if (!validateHeaders(headerFields)) {
-                printf("Error in the headers\n");
+        bool send411 = false;
+        if (!extractMessage(buffer + requestLineLength + headerLength, headerFields, &message, &send411)) {
+            printf("Error in extracting the message\n");
 
-                send400Message(acceptedFileDescriptor);
-                terminateConnection(acceptedFileDescriptor);
-                return;
-            }
-
-
-            char* message = NULL;
-
-            /*
-            if (buffer[requestLineLength + headerLength] != '\0' ) { //message exists. I don't know why but sometimes Firefox seems to be repeating headers in the message section but doesn't contain a content-length????
-
-                bool send411 = false;
-                if (!extractMessage(buffer + requestLineLength + headerLength, headerFields, &message, &send411)) {
-                    printf("Error in extracting the message\n");
-
-                    if (send411) {
-                        printf("About to send 411 error");
-                        char* response = create411Message();
-                        sendResponse(acceptedFileDescriptor, response, strlen(response));
-                        free(response);
-                    }
-                    continue;
-                }
-            }
-            */
-
-            //printRequest(requestLine, headerFields, message);
-            if (message) {
-                free(message);
-            }
-
-            char* response = createResponse(requestLine.path, headerFields, settings, settings301);
-
-            if (!response) {
-                terminateConnection(acceptedFileDescriptor);
-                return;
-            }
-
-            if (sendResponse(acceptedFileDescriptor, response, strlen(response))) {
-                printf("All sent!\n");
+            if (send411) {
+                printf("About to send 411 error");
+                char* response = create411Message();
+                sendResponse(acceptedFileDescriptor, response, strlen(response));
                 free(response);
             }
-            else {
-                printf("Error with sending data: %s\n", strerror(errno));
-            }
+            continue;
         }
     }
-}
+    */
 
+    //printRequest(requestLine, headerFields, message);
+    if (message) {
+        free(message);
+    }
+
+    char* response = createResponse(requestLine.path, headerFields, settings, settings301);
+
+    if (!response) {
+        terminateConnection(acceptedFileDescriptor);
+        return;
+    }
+
+    if (sendResponse(acceptedFileDescriptor, response, strlen(response))) {
+        printf("All sent!\n");
+        free(response);
+    }
+    else {
+        printf("Error with sending data\n", strerror(errno));
+    }
+}
 

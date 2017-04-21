@@ -10,3 +10,5 @@ Buffer overflows!!!!! in the parsing, eg, skipToLF
 Currently only allows one redirect. In future, redirect to a redirect should be possible.
 CaseSensitivityPaths currently not implemented. May need to individually parse path.
 Allow sending content types other than text/html
+Starvation in multithreading
+Sometimes requests hang...

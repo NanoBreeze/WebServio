@@ -24,10 +24,10 @@
 #include "LinkedList.h"
 #include "Lib.h"
 #include "Connection.h"
+#include "Common.h"
 
 #define PORT "3002"
-#define ESTIMATED_CONNECTIONS 10
-#define MAX_EVENTS 128
+
 
 
 int run_all_tests() {
@@ -80,7 +80,8 @@ int run_all_tests() {
 
 int main()
 {
-    char* settingsText = getFileText("../WebServioSettingsCLI/settings.conf");
+
+    char* settingsText = getFileText( "../WebServioSettingsCLI/settings.conf");
 
     LinkedList* settings = createLinkedList();
     LinkedList* settings301 = createLinkedList();
@@ -167,6 +168,44 @@ int main()
     socklen_t acceptedFileDescriptorLength = sizeof acceptedFileDescriptor;
     struct sockaddr_storage acceptedAddr;
 
+
+    #ifdef MULTITHREADED
+    for(;;) {
+        pthread_mutex_lock(&lock);
+
+        while (threadsFree == 0) { //use while in case of spurious wakeups
+            pthread_cond_wait(&cond, &lock);
+        }
+
+        threadsFree--;
+        printf("Condition met. Current threads free: %d", threadsFree);
+        pthread_mutex_unlock(&lock);
+
+        //opens a connection
+        if ((acceptedFileDescriptor = accept(fileDescriptor, (struct sockaddr*) &acceptedAddr, &acceptedFileDescriptorLength)) == -1) {
+            printf("Error with accepting: %s\n", strerror(errno));
+            return;
+        }
+
+        printf("\n\n\nGot connection. The file descriptor is: %d\n", acceptedFileDescriptor);
+
+        Params params;
+        params.acceptedFileDescriptor = acceptedFileDescriptor;
+        params.settings = settings;
+        params.settings301 = settings301;
+
+        pthread_t thread;
+
+        int ret = pthread_create(&thread, NULL, startConnection, (void*) &params);
+        if (ret) {
+            printf("Error in creating the thread: %d\n", ret);
+        }
+
+        pthread_detach(thread);
+    }
+
+    #else
+
     int epfd = epoll_create(ESTIMATED_CONNECTIONS);
     if (epfd == -1) {
         printf("Error in creating the epoll: %s\n", strerror(errno));
@@ -228,155 +267,36 @@ int main()
                     printf("Error in adding the socket file descriptor to epoll: %s\n", strerror(errno));
                 }
             }
-            else {  //previous connection
+            else {  //received data on a previous connection
+
+                Params params;
+                params.acceptedFileDescriptor = events[i].data.fd;
 
                 char buffer[10000];
 
-                int fd = events[i].data.fd;
-
                 int bytesReceived = 0;
-                if ( (bytesReceived = read(fd, buffer, sizeof buffer)) <= 0) {
-                    //connection closed
-                    if (bytesReceived == 0) {
-                        printf("Client closed connection. Current thread id: %d.\n", pthread_self());
-                    }
-                    else {
-                        printf("Error with receiving information: %s.\n", strerror(errno));
-                    }
+                if ( (bytesReceived = read(params.acceptedFileDescriptor, buffer, sizeof buffer)) <= 0) {
 
-
-                    terminateConnection(fd);
-
-                    //printf("Connection closed. Exiting. Current thread id: %d.\n", pthread_self());
-                    //return;
+                    analyzeReadError(params.acceptedFileDescriptor, bytesReceived);
                 }
                 else {
+                    params.settings301 = settings301;
+                    params.settings = settings;
 
-                    printf("\nRECEIVED DATA. Current thread id: %d\n%s", pthread_self(), buffer);
+                    processRequest(buffer, &params);
 
-                    printf("==================================");
-
-                    RequestLine requestLine;
-                    int requestLineLength = 0;
-                    if (!parseRequestLine(buffer, &requestLine, &requestLineLength)) {
-                        printf("Error in the request line.\n");
-
-                        send400Message(fd);
-                        terminateConnection(acceptedFileDescriptor);
-                        return;
-                    }
-
-
-                    LinkedList* headerFields = createLinkedList();
-                    int headerLength = 0;
-                    if (!parseHeader(buffer + requestLineLength, headerFields, &headerLength)) {
-                        printf("Error in the headers\n");
-
-                        send400Message(fd);
-                        terminateConnection(fd);
-                        return;
-                    }
-
-                    if (!validateHeaders(headerFields)) {
-                        printf("Error in the headers\n");
-
-                        send400Message(fd);
-                        terminateConnection(fd);
-                        return;
-                    }
-
-
-                    char* message = NULL;
-
-                    /*
-                    if (buffer[requestLineLength + headerLength] != '\0' ) { //message exists. I don't know why but sometimes Firefox seems to be repeating headers in the message section but doesn't contain a content-length????
-
-                        bool send411 = false;
-                        if (!extractMessage(buffer + requestLineLength + headerLength, headerFields, &message, &send411)) {
-                            printf("Error in extracting the message\n");
-
-                            if (send411) {
-                                printf("About to send 411 error");
-                                char* response = create411Message();
-                                sendResponse(acceptedFileDescriptor, response, strlen(response));
-                                free(response);
-                            }
-                            continue;
-                        }
-                    }
-                    */
-
-                    //printRequest(requestLine, headerFields, message);
-                    if (message) {
-                        free(message);
-                    }
-
-                    char* response = createResponse(requestLine.path, headerFields, settings, settings301);
-
-                    if (!response) {
-                        terminateConnection(fd);
-                        return;
-                    }
-
-                    if (sendResponse(fd, response, strlen(response))) {
-                        printf("All sent!\n");
-                        //close(acceptedFileDescriptor);
-                        free(response);
-                    }
-                    else {
-                        printf("Error with sending data: %s\n", strerror(errno));
-                    }
                 }
-
             }
-
         }
-
     }
-
-
-
-
-
-/*
-
-    for(;;) {
-        pthread_mutex_lock(&lock);
-
-        while (threadsFree == 0) { //use while in case of spurious wakeups
-            pthread_cond_wait(&cond, &lock);
-        }
-
-        threadsFree--;
-        printf("Condition met. Current threads free: %d", threadsFree);
-        pthread_mutex_unlock(&lock);
-
-        //opens a connection
-        if ((acceptedFileDescriptor = accept(fileDescriptor, (struct sockaddr*) &acceptedAddr, &acceptedFileDescriptorLength)) == -1) {
-            printf("Error with accepting: %s\n", strerror(errno));
-            return;
-        }
-
-        printf("\n\n\nGot connection. The file descriptor is: %d\n", acceptedFileDescriptor);
-
-        Params params;
-        params.acceptedFileDescriptor = acceptedFileDescriptor;
-        params.settings = settings;
-        params.settings301 = settings301;
-
-        pthread_t thread;
-
-        int ret = pthread_create(&thread, NULL, startConnection, (void*) &params);
-        if (ret) {
-            printf("Error in creating the thread: %d\n", ret);
-        }
-
-        pthread_detach(thread);
-    }
-*/
-
 
     free(events);
+
+    #endif // MULTITHREADED
+
+
+
+
     close(fileDescriptor);
 
     return 0;

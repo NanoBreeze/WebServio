@@ -2,25 +2,18 @@
 #define CONNECTION_H_INCLUDED
 
 #include <pthread.h>
+#include "Lib.h"
+
 
 extern pthread_mutex_t lock;
 extern pthread_cond_t cond;
 
 extern int threadsFree;
 
-/*
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-
-int threadsFree = 2;
-*/
-/*
-    pthread_mutex_init(&lock, NULL);
-    pthread_cond_init(&cond, NULL);
-
-    threadsFree = 2;
-*/
 
 void* startConnection(void* p);
+void processRequest(char* buffer, Params* params);
+void analyzeReadError(int acceptedFileDescriptor, int bytesReceived);
+
 
 #endif // CONNECTION_H_INCLUDED
